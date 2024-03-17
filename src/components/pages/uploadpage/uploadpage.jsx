@@ -83,7 +83,6 @@ function UploadPage() {
     const [uploadQueue, setUploadQueue] = useState([]);
     const { tokenBalance } = useContext(TokenContext);
     const [maxUploadSize, setMaxUploadSize] = useState(5 * 1024 * 1024 * 1024); // Default to 5GB
-    const [totalSize, setTotalSize] = useState(0);
     const [windowSize, setWindowSize] = useState(window.innerWidth);
     useEffect(() => {
         console.log("Updated tokenBalance: ", tokenBalance); // For debugging
