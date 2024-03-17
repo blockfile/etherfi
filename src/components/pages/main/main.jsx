@@ -7,20 +7,20 @@ import { Link } from "react-router-dom";
 
 function Main() {
     return (
-        <div className="bg">
+        <div className="bg  sm:overflow-hidden">
             <Navbar />
-            <div className="bg-scene my-5 ">
+            <div className="bg-scene my-5">
                 <div className="scene-container z-0">
                     <Scene />
                 </div>
 
                 <div className="centered-text">
-                    <p className="text-5xl">YOUR</p>
-                    <p className="text-7xl text-white  glitch layers ring-4 my-2 ">
+                    <p className="md:text-5xl sm: text-2xl">YOUR</p>
+                    <p className="md:text-7xl sm: text-4xl text-white  glitch layers ring-4 my-2 ">
                         WEB3 FILE STORAGE
                     </p>
                     <p
-                        className="text-5xl  glitch layers"
+                        className="md:text-5xl sm: text-2xl  glitch layers"
                         data-text=" BLOCKFILE">
                         BLOCKFILE
                     </p>

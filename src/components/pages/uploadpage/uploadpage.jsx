@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import Navbar from "../../navbar/navbar";
 import axios from "axios";
-import icon from "../../assets/Images/logo.png";
+
 import "./uploadpage.css";
 import { FaFolderPlus } from "react-icons/fa";
 import { FiFilePlus } from "react-icons/fi";
@@ -44,9 +44,9 @@ const fileTypeIcons = {
     whm: <FaFileVideo />,
     mov: <FaFileVideo />,
     avi: <FaFileVideo />,
-    mov: <FaFileVideo />,
+
     wmv: <FaFileVideo />,
-    flv: <FaFileVideo />,
+
     mp3: <FaFileAudio />,
     wav: <FaFileAudio />,
     aac: <FaFileAudio />,
@@ -66,7 +66,7 @@ const fileTypeIcons = {
     tar: <FaFileArchive />,
     gz: <FaFileArchive />,
     bz2: <FaFileArchive />,
-    pdf: <FaFilePdf />,
+
     // Add or remove file types as needed
 };
 
@@ -84,6 +84,7 @@ function UploadPage() {
     const { tokenBalance } = useContext(TokenContext);
     const [maxUploadSize, setMaxUploadSize] = useState(5 * 1024 * 1024 * 1024); // Default to 5GB
     const [windowSize, setWindowSize] = useState(window.innerWidth);
+    const isWalletConnected = account && window.ethereum;
     useEffect(() => {
         console.log("Updated tokenBalance: ", tokenBalance); // For debugging
         let newSize;
@@ -193,12 +194,12 @@ function UploadPage() {
         // Add this line to update the total uploaded size whenever a file's status is updated
         updateTotalUploadedSize();
     };
-    const handleFolderChange = (event) => {
-        const files = Array.from(event.target.files); // Convert FileList to Array
-        console.log(files); // Optional: Log the files to be uploaded
-        // Update state or variables for upload process
-        setSelectedFiles(files); // Assuming setSelectedFiles is your method to update state
-    };
+    // const handleFolderChange = (event) => {
+    //     const files = Array.from(event.target.files); // Convert FileList to Array
+    //     console.log(files); // Optional: Log the files to be uploaded
+    //     // Update state or variables for upload process
+    //     setSelectedFiles(files); // Assuming setSelectedFiles is your method to update state
+    // };
 
     const toggleFileSelection = (fileId) => {
         const newSelection = new Set(selectedFiles);
@@ -423,31 +424,31 @@ function UploadPage() {
         // When the icon is clicked, trigger a click on the file input
         fileInputRef.current.click();
     };
-    const handleCreateFolder = async () => {
-        if (!newFolderName) {
-            alert("Please enter a folder name!");
-            return;
-        }
+    // const handleCreateFolder = async () => {
+    //     if (!newFolderName) {
+    //         alert("Please enter a folder name!");
+    //         return;
+    //     }
 
-        try {
-            const response = await axios.post(
-                "http://localhost:3001/create-folder",
-                {
-                    folderName: newFolderName,
-                    walletAddress: account, // Assuming you're storing the wallet address in state
-                }
-            );
+    //     try {
+    //         const response = await axios.post(
+    //             "http://localhost:3001/create-folder",
+    //             {
+    //                 folderName: newFolderName,
+    //                 walletAddress: account, // Assuming you're storing the wallet address in state
+    //             }
+    //         );
 
-            // Update your local state to reflect the new folder
-            const newFolder = response.data.dbData;
-            setFiles((prevFiles) => [...prevFiles, newFolder]);
-            setNewFolderName(""); // Clear the input field
-            alert("Folder created successfully!");
-        } catch (error) {
-            console.error("Error creating folder:", error);
-            alert("Error creating folder.");
-        }
-    };
+    //         // Update your local state to reflect the new folder
+    //         const newFolder = response.data.dbData;
+    //         setFiles((prevFiles) => [...prevFiles, newFolder]);
+    //         setNewFolderName(""); // Clear the input field
+    //         alert("Folder created successfully!");
+    //     } catch (error) {
+    //         console.error("Error creating folder:", error);
+    //         alert("Error creating folder.");
+    //     }
+    // };
     function formatFileSize(bytes) {
         if (bytes < 1024) return bytes + " Bytes";
         else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
@@ -524,7 +525,7 @@ function UploadPage() {
                                             width: `${uploadPercentage}%`,
                                         }}></div>
                                 </div>
-                                <div className="text-sm text-right mt-1">
+                                <div className="text-sm sm:text-center md:text-right mt-1">
                                     {uploadPercentage}% (
                                     {(
                                         totalUploadedSize /
@@ -535,28 +536,43 @@ function UploadPage() {
                                     MB)
                                 </div>
                             </div>
-                            <button
-                                onClick={handleUploadButtonClick}
-                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Upload
-                            </button>
+                            <div>
+                                <button
+                                    onClick={handleUploadButtonClick}
+                                    className={`${
+                                        isWalletConnected
+                                            ? "bg-blue-500 hover:bg-blue-700"
+                                            : "bg-gray-500 cursor-not-allowed"
+                                    } text-white font-bold py-2 px-4 rounded`}
+                                    disabled={!isWalletConnected}>
+                                    Upload
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div className="flex  mx-6 my-2 space-x-4 ">
-                        <div>
-                            <input
-                                type="checkbox"
-                                className="form-checkbox "
-                                onChange={handleSelectAll}
-                                checked={
-                                    files.length > 0 &&
-                                    selectedFiles.size === files.length
-                                }
-                            />
+                        <div className=" ">
+                            <div className=" ">
+                                <input
+                                    type="checkbox"
+                                    className="form-checkbox "
+                                    onChange={handleSelectAll}
+                                    checked={
+                                        files.length > 0 &&
+                                        selectedFiles.size === files.length
+                                    }
+                                />
+
+                                <span className=""> SELECT ALL FILES</span>
+                            </div>
                         </div>
                     </div>
                     {files.length === 0 ? (
-                        <div className="text-center">This folder is empty</div>
+                        <div className="text-center">
+                            {isWalletConnected
+                                ? "This folder is empty"
+                                : "Please connect your MetaMask wallet first."}
+                        </div>
                     ) : (
                         <div className="files-table-container md:max-h-[750px] overflow-y-auto  sm:max-h-[600px]">
                             <table className="min-w-full  ">

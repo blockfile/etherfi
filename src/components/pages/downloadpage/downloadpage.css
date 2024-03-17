@@ -1,6 +1,7 @@
 .font-anta {
     font-family: "Anta";
 }
+
 .bg {
     background-image: linear-gradient(
         to bottom,
@@ -14,6 +15,27 @@
     z-index: 0;
     width: 100%;
     height: 100%;
+}
+
+@media (max-width: 768px) {
+    .filename {
+        max-width: 150px; /* Adjust for smaller screens */
+    }
+}
+
+@media (max-width: 320px) {
+    .bg-gray-800 {
+        padding: 2rem 1rem; /* Reduce padding on very small screens */
+    }
+
+    .filename,
+    .text-center p {
+        font-size: 0.875rem; /* Smaller font size */
+    }
+
+    h2 {
+        font-size: 1.25rem; /* Smaller heading */
+    }
 }
 .bg-modal {
     background-image: linear-gradient(

@@ -4,31 +4,41 @@ import logo from "../assets/Images/logo.png";
 import makeBlockie from "ethereum-blockies-base64";
 import axios from "axios";
 import TokenContext from "../assets/TokenContext";
+import { Link } from "react-router-dom";
+import { FaBars, FaTimes } from "react-icons/fa";
+import { IoArrowBackCircleOutline } from "react-icons/io5";
 function Navbar() {
     const [isConnected, setIsConnected] = useState(false);
     const [account, setAccount] = useState("");
-
     const [blockieImage, setBlockieImage] = useState("");
     const { tokenBalance, setTokenBalance } = useContext(TokenContext);
-    // Function to format the wallet address for display
-    const formatAddress = (address) => {
-        if (!address) return "";
-        return `${address.substring(0, 6)}...${address.substring(
-            address.length - 4
-        )}`;
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [showDisconnectModal, setShowDisconnectModal] = useState(false);
+    const toggleDisconnectModal = () => {
+        setShowDisconnectModal(!showDisconnectModal);
     };
 
-    // Step 2: Function to fetch token balance from BscScan
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+    // Function to format the wallet address for display
+    const formatAddress = (address) =>
+        address
+            ? `${address.substring(0, 6)}...${address.substring(
+                  address.length - 4
+              )}`
+            : "";
+
+    // Function to fetch token balance from BscScan
     const fetchTokenBalance = async (walletAddress) => {
-        const apiKey = "JUDPV627WC6YPRF9PJ992PQ4MMAIZVCDVV"; // Replace with your BscScan API key
-        const contractAddress = "0x79601100c4b8089a354ab413810dea3d9040306d"; // The contract address for the token
+        const apiKey = "YOUR_BSCSCAN_API_KEY"; // Replace with your BscScan API key
+        const contractAddress = "YOUR_CONTRACT_ADDRESS"; // The contract address for the token
         const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=${contractAddress}&address=${walletAddress}&tag=latest&apikey=${apiKey}`;
 
         try {
             const response = await axios.get(url);
             if (response.data && response.data.result) {
-                // BscScan API returns the balance in the smallest token unit (e.g., Wei for ETH), convert it if necessary
-                const balance = response.data.result / 1e18; // Adjust the division based on the token's decimals
+                const balance = response.data.result / 1e18; // Adjust based on the token's decimals
                 setTokenBalance(balance);
             }
         } catch (error) {
@@ -47,7 +57,7 @@ function Navbar() {
                 setAccount(accounts[0]);
                 setIsConnected(true);
                 setBlockieImage(makeBlockie(accounts[0]));
-                fetchTokenBalance(accounts[0]); // Fetch token balance upon connecting
+                fetchTokenBalance(accounts[0]);
             } catch (error) {
                 console.error(error);
             }
@@ -72,27 +82,37 @@ function Navbar() {
                     setAccount(accounts[0]);
                     setIsConnected(true);
                     setBlockieImage(makeBlockie(accounts[0]));
-                    fetchTokenBalance(accounts[0]); // Fetch token balance on initial load if wallet is connected
+                    localStorage.setItem("ethAddress", accounts[0]);
                 }
+            } else {
+                console.log(
+                    "Ethereum wallet integration not supported on this browser."
+                );
             }
         };
 
         checkIfWalletIsConnected();
 
+        // Handle account changes
         const handleAccountsChanged = (accounts) => {
             if (accounts.length > 0) {
                 setAccount(accounts[0]);
                 setIsConnected(true);
                 setBlockieImage(makeBlockie(accounts[0]));
-                fetchTokenBalance(accounts[0]); // Fetch token balance on account change
+                fetchTokenBalance(accounts[0]);
             } else {
                 setIsConnected(false);
-                setTokenBalance(0); // Reset token balance if the wallet is disconnected
+                setAccount("");
+                setBlockieImage("");
+                setTokenBalance(0);
             }
         };
 
-        window.ethereum.on("accountsChanged", handleAccountsChanged);
+        if (window.ethereum) {
+            window.ethereum.on("accountsChanged", handleAccountsChanged);
+        }
 
+        // Cleanup function
         return () => {
             if (window.ethereum) {
                 window.ethereum.removeListener(
@@ -101,7 +121,17 @@ function Navbar() {
                 );
             }
         };
-    }, []);
+    }, [setTokenBalance]); // Dependency array ensures effect is only run on mount and unmount, and when setTokenBalance changes
+    const disconnectWallet = () => {
+        setIsConnected(false);
+        setAccount("");
+        setBlockieImage("");
+        setTokenBalance(0);
+        setShowDisconnectModal(false);
+        // Additionally, you might want to remove the account from local storage or any other persisted state
+        localStorage.removeItem("ethAddress");
+    };
+
     return (
         <div>
             <nav className=" backdrop-blur-3xl hover:text-black">
@@ -113,10 +143,24 @@ function Navbar() {
                             className=" h-12  my-auto ml-5"
                         />
                         <div className="my-auto">
-                            <span className=" text-3xl">BLOCKFILE</span>
+                            <Link to="/">
+                                <span className=" text-3xl">BLOCKFILE</span>
+                            </Link>
+                        </div>
+                        <div className="md:hidden absolute right-0 pr-4 mt-2">
+                            <button onClick={toggleMobileMenu}>
+                                {isMobileMenuOpen ? (
+                                    <FaTimes size={24} />
+                                ) : (
+                                    <FaBars size={24} />
+                                )}
+                            </button>
                         </div>
                     </div>
-                    <div>
+                    <div
+                        className={`${
+                            isMobileMenuOpen ? "flex" : "hidden"
+                        } md:flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6`}>
                         {!isConnected ? (
                             <div className="p-2 hidden lg:block">
                                 <button
@@ -601,6 +645,90 @@ function Navbar() {
                     </div>
                 </div>
             </nav>
+            {isMobileMenuOpen && (
+                <>
+                    {/* Overlay */}
+                    <div
+                        onClick={toggleMobileMenu}
+                        className="fixed top-0 left-0 w-full h-full backdrop-blur-xl bg-black bg-opacity-50 z-40 "></div>
+
+                    {/* Menu Items */}
+                    <ul className="fixed top-0 right-0 left-0 mt-2 mr-2 flex flex-col space-y-4 text-xl z-50 p-4 items-center font-anta">
+                        <div className="flex justify-between">
+                            <div className="flex space-x-2">
+                                <img
+                                    src={logo}
+                                    alt=""
+                                    className=" h-12  my-auto "
+                                />
+                                <div className="my-auto">
+                                    <span className=" text-3xl">BLOCKFILE</span>
+                                </div>
+                            </div>
+                        </div>
+                        <li className="w-full border border-gray-500  hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-gray-500 rounded-lg text-sm text-center flex justify-center items-center py-2">
+                            <Link to="/">
+                                <div className="flex space-x-2 justify-center items-center cursor-pointer ">
+                                    <IoArrowBackCircleOutline size={30} />
+                                    <span className="text-xl shadow-2xl">
+                                        RETURN TO DASHBOARD
+                                    </span>
+                                </div>
+                            </Link>
+                        </li>
+                        <li className="w-full border border-gray-500 focus:ring-4 focus:outline-none focus:ring-gray-500 rounded-lg text-sm text-center flex justify-center items-center py-2">
+                            <div className="flex space-x-2 justify-center items-center">
+                                <img
+                                    src={logo}
+                                    alt="emptylogo"
+                                    className="h-7 w-7 rounded-full"
+                                />
+                                <span className="text-xl shadow-2xl">
+                                    {tokenBalance.toFixed(0)}
+                                </span>
+                                <span className="text-xl shadow-2xl">BLK</span>
+                            </div>
+                        </li>
+                        <li className="w-full border border-gray-500 focus:ring-4 focus:outline-none rounded-lg text-sm flex justify-center items-center py-2">
+                            <div
+                                className="flex space-x-2 justify-center items-center"
+                                onClick={toggleDisconnectModal}>
+                                <img
+                                    src={blockieImage}
+                                    alt="emptylogo"
+                                    className="h-7 w-7 rounded-full cursor-pointer"
+                                />
+                                <span className="text-xl shadow-2xl">
+                                    {formatAddress(account)}
+                                </span>
+                            </div>
+                        </li>
+                    </ul>
+                </>
+            )}
+            {/* {showDisconnectModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white p-4 rounded-lg">
+                        <p>Do you want to disconnect your wallet?</p>
+                        <p className="text-xs mt-2">
+                            For added security, consider locking MetaMask
+                            manually after disconnecting.
+                        </p>
+                        <div className="flex justify-around mt-4">
+                            <button
+                                onClick={disconnectWallet}
+                                className="bg-red-500 text-white p-2 rounded-lg">
+                                Disconnect
+                            </button>
+                            <button
+                                onClick={toggleDisconnectModal}
+                                className="bg-gray-300 p-2 rounded-lg">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )} */}
         </div>
     );
 }
