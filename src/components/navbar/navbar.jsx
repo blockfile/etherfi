@@ -82,7 +82,8 @@ function Navbar() {
                     setAccount(accounts[0]);
                     setIsConnected(true);
                     setBlockieImage(makeBlockie(accounts[0]));
-                    localStorage.setItem("ethAddress", accounts[0]);
+                    // Fetch token balance on component mount if already connected
+                    fetchTokenBalance(accounts[0]);
                 }
             } else {
                 console.log(
@@ -93,7 +94,6 @@ function Navbar() {
 
         checkIfWalletIsConnected();
 
-        // Handle account changes
         const handleAccountsChanged = (accounts) => {
             if (accounts.length > 0) {
                 setAccount(accounts[0]);
@@ -121,8 +121,7 @@ function Navbar() {
                 );
             }
         };
-    }, [setTokenBalance]); // Dependency array ensures effect is only run on mount and unmount, and when setTokenBalance changes
-
+    }, [setTokenBalance]);
     return (
         <div>
             <nav className=" backdrop-blur-3xl hover:text-black">
