@@ -11,7 +11,11 @@ app.use(express.json()); // This line is new
 app.use(express.urlencoded({ extended: true })); // And this line is new
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-
+app.use(
+    cors({
+        origin: "https://dapp.blockfile.xyz",
+    })
+);
 const spacesEndpoint = new AWS.Endpoint("sgp1.digitaloceanspaces.com");
 const s3 = new AWS.S3({
     endpoint: spacesEndpoint.hostname, // Correct, just the hostname, no "https://"
