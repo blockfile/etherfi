@@ -13,7 +13,7 @@ function DownloadPage() {
         const fetchFile = async () => {
             try {
                 const response = await axios.get(
-                    `http://http://188.166.250.224:3001/files/${id}`
+                    `http://188.166.250.224:3001/files/${id}`
                 );
                 setFile(response.data);
             } catch (error) {
