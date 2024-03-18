@@ -16,7 +16,6 @@ const wss = new WebSocket.Server({ server });
 const WebSocket = require("ws");
 const path = require("path");
 const http = require("http");
-app.use(express.static(path.join(__dirname, "build")));
 
 // WebSocket connection handler
 wss.on("connection", (ws) => {
@@ -28,9 +27,6 @@ wss.on("connection", (ws) => {
 });
 
 // Fallback route handler (for SPA routing)
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "build", "index.html"));
-});
 
 app.use(
     cors({
