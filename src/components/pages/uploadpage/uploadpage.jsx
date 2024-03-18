@@ -116,7 +116,7 @@ function UploadPage() {
         if (account) {
             try {
                 const response = await axios.get(
-                    `http://localhost:3001/files?walletAddress=${account}`
+                    `http://http://188.166.250.224/:3001/files?walletAddress=${account}`
                 );
                 setFiles(response.data);
             } catch (error) {
@@ -143,7 +143,7 @@ function UploadPage() {
         if (account) {
             try {
                 const response = await axios.get(
-                    `http://localhost:3001/totalSize?walletAddress=${account}`
+                    `http://http://188.166.250.224/:3001/totalSize?walletAddress=${account}`
                 );
                 const { totalSize } = response.data;
                 setTotalUploadedSize(totalSize);
@@ -236,19 +236,23 @@ function UploadPage() {
                 formData.append("walletAddress", account);
 
                 try {
-                    await axios.post("http://localhost:3001/upload", formData, {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                        onUploadProgress: (progressEvent) => {
-                            const percentCompleted = Math.round(
-                                (progressEvent.loaded * 100) /
-                                    progressEvent.total
-                            );
-                            updateFileProgress(i, percentCompleted);
-                        },
-                        cancelToken: fileData.cancelToken,
-                    });
+                    await axios.post(
+                        "http://http://188.166.250.224/:3001/upload",
+                        formData,
+                        {
+                            headers: {
+                                "Content-Type": "multipart/form-data",
+                            },
+                            onUploadProgress: (progressEvent) => {
+                                const percentCompleted = Math.round(
+                                    (progressEvent.loaded * 100) /
+                                        progressEvent.total
+                                );
+                                updateFileProgress(i, percentCompleted);
+                            },
+                            cancelToken: fileData.cancelToken,
+                        }
+                    );
 
                     updateFileStatus(i, "done");
                     setTotalUploadedSize(
@@ -337,7 +341,7 @@ function UploadPage() {
 
         try {
             const response = await axios.post(
-                "http://localhost:3001/delete-multiple",
+                "http://http://188.166.250.224/:3001/delete-multiple",
                 { fileIds },
                 {
                     headers: {
@@ -432,7 +436,7 @@ function UploadPage() {
 
     //     try {
     //         const response = await axios.post(
-    //             "http://localhost:3001/create-folder",
+    //             "http://http://188.166.250.224/:3001/create-folder",
     //             {
     //                 folderName: newFolderName,
     //                 walletAddress: account, // Assuming you're storing the wallet address in state
