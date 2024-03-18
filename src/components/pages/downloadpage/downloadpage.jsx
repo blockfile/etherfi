@@ -53,12 +53,14 @@ function DownloadPage() {
                                     ).toLocaleDateString()}
                                 </p>
                             </div>
-                            <a
-                                href={`https://web3storage.sgp1.cdn.digitaloceanspaces.com/uploads/${file.walletAddress}/${file.filename}`}
-                                download={file.filename}
-                                className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Download
-                            </a>
+                            <div className="py-5">
+                                <a
+                                    href={`https://web3storage.sgp1.cdn.digitaloceanspaces.com/uploads/${file.walletAddress}/${file.filename}`}
+                                    download={file.filename}
+                                    className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                    Download
+                                </a>
+                            </div>
                         </div>
                     ) : (
                         <p>Loading file details...</p>
