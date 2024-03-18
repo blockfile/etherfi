@@ -609,7 +609,7 @@ function Navbar() {
                             </div>
                         ) : (
                             <ul className="flex space-x-5 text-xl mt-2 justify-end mr-2 ">
-                                <li className=" border-1  bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 w-[250px] h-[43px] hidden lg:block rounded-lg text-sm text-center  items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700  mb-2">
+                                <li className=" border-1   hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 w-[250px] h-[43px] hidden lg:block rounded-lg text-sm text-center  items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700  mb-2">
                                     <div className="flex space-x-2 pl-5 my-2 ">
                                         <div>
                                             <img
@@ -626,7 +626,7 @@ function Navbar() {
                                         </span>
                                     </div>
                                 </li>
-                                <li className=" border-1 cursor-pointer  bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 w-[250px] h-[43px] hidden lg:block rounded-lg text-sm text-center  items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700  mb-2">
+                                <li className=" border-1 cursor-pointer   hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 w-[250px] h-[43px] hidden lg:block rounded-lg text-sm text-center  items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700  mb-2">
                                     <div className="flex space-x-2 ml-10 my-2  ">
                                         <div>
                                             <img
@@ -690,9 +690,7 @@ function Navbar() {
                             </div>
                         </li>
                         <li className="w-full border border-gray-500 focus:ring-4 focus:outline-none rounded-lg text-sm flex justify-center items-center py-2">
-                            <div
-                                className="flex space-x-2 justify-center items-center"
-                                onClick={toggleDisconnectModal}>
+                            <div className="flex space-x-2 justify-center items-center">
                                 <img
                                     src={blockieImage}
                                     alt="emptylogo"
