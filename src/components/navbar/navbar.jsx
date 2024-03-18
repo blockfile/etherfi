@@ -31,8 +31,8 @@ function Navbar() {
 
     // Function to fetch token balance from BscScan
     const fetchTokenBalance = async (walletAddress) => {
-        const apiKey = "YOUR_BSCSCAN_API_KEY"; // Replace with your BscScan API key
-        const contractAddress = "YOUR_CONTRACT_ADDRESS"; // The contract address for the token
+        const apiKey = "JUDPV627WC6YPRF9PJ992PQ4MMAIZVCDVV"; // Replace with your BscScan API key
+        const contractAddress = "0x79601100c4b8089a354ab413810dea3d9040306d"; // The contract address for the token
         const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=${contractAddress}&address=${walletAddress}&tag=latest&apikey=${apiKey}`;
 
         try {
@@ -122,15 +122,6 @@ function Navbar() {
             }
         };
     }, [setTokenBalance]); // Dependency array ensures effect is only run on mount and unmount, and when setTokenBalance changes
-    const disconnectWallet = () => {
-        setIsConnected(false);
-        setAccount("");
-        setBlockieImage("");
-        setTokenBalance(0);
-        setShowDisconnectModal(false);
-        // Additionally, you might want to remove the account from local storage or any other persisted state
-        localStorage.removeItem("ethAddress");
-    };
 
     return (
         <div>
