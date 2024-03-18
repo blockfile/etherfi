@@ -11,6 +11,27 @@ app.use(express.json()); // This line is new
 app.use(express.urlencoded({ extended: true })); // And this line is new
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+const WebSocket = require("ws");
+const path = require("path");
+const http = require("http");
+app.use(express.static(path.join(__dirname, "build")));
+
+// WebSocket connection handler
+wss.on("connection", (ws) => {
+    console.log("WebSocket connection established");
+    ws.on("message", (message) => {
+        console.log("received: %s", message);
+    });
+    ws.send("Hello Client");
+});
+
+// Fallback route handler (for SPA routing)
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "build", "index.html"));
+});
+
 app.use(
     cors({
         origin: "https://dapp.blockfile.xyz",
