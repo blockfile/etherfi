@@ -117,7 +117,7 @@ function UploadPage() {
         if (account) {
             try {
                 const response = await axios.get(
-                    `https://dapp.blockfile.xyz/files?walletAddress=${account}`
+                    `http://188.166.227.116:3001/files?walletAddress=${account}`
                 );
                 console.log(response.data); // Log to see the data structure
                 setFiles(response.data);
@@ -145,7 +145,7 @@ function UploadPage() {
         if (account) {
             try {
                 const response = await axios.get(
-                    `https://dapp.blockfile.xyz/totalSize?walletAddress=${account}`
+                    `http://188.166.227.116:3001/totalSize?walletAddress=${account}`
                 );
                 const { totalSize } = response.data;
                 setTotalUploadedSize(totalSize);
@@ -239,7 +239,7 @@ function UploadPage() {
 
                 try {
                     await axios.post(
-                        "https://dapp.blockfile.xyz/upload",
+                        "http://188.166.227.116:3001/upload",
                         formData,
                         {
                             headers: {
@@ -343,7 +343,7 @@ function UploadPage() {
 
         try {
             const response = await axios.post(
-                "https://dapp.blockfile.xyz/delete-multiple",
+                "http://188.166.227.116:3001/delete-multiple",
                 { fileIds },
                 {
                     headers: {
@@ -438,7 +438,7 @@ function UploadPage() {
 
     //     try {
     //         const response = await axios.post(
-    //             "https://dapp.blockfile.xyz/create-folder",
+    //             "http://188.166.227.116:3001/create-folder",
     //             {
     //                 folderName: newFolderName,
     //                 walletAddress: account, // Assuming you're storing the wallet address in state

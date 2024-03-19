@@ -13,7 +13,7 @@ function DownloadPage() {
         const fetchFile = async () => {
             try {
                 const response = await axios.get(
-                    `https://dapp.blockfile.xyz/files/${id}`
+                    `http://188.166.227.116:3001/files/${id}`
                 );
                 setFile(response.data);
             } catch (error) {

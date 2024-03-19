@@ -27,7 +27,7 @@ const corsOptions = {
     origin: [
         "https://dapp.blockfile.xyz",
         "http://localhost:3000",
-        "http://188.166.250.224:3000",
+        "http://188.166.227.116:3000",
     ], // Add your production and development URLs here
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
