@@ -33,7 +33,6 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.use(cors(corsOptions));
 const spacesEndpoint = new AWS.Endpoint("sgp1.digitaloceanspaces.com");
 const s3 = new AWS.S3({
     endpoint: spacesEndpoint.hostname, // Correct, just the hostname, no "https://"
@@ -50,7 +49,7 @@ mongoose
     .then(() => console.log("MongoDB connected..."))
     .catch((err) => console.log(err));
 
-app.get("/totalSize", async (req, res) => {
+app.get("/api/totalSize", async (req, res) => {
     const { walletAddress } = req.query;
     try {
         const totalSize = await File.aggregate([
@@ -69,7 +68,7 @@ app.get("/totalSize", async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
-app.get("/download/:id", async (req, res) => {
+app.get("/api/download/:id", async (req, res) => {
     try {
         const file = await File.findById(req.params.id);
         if (!file) {
@@ -91,7 +90,7 @@ app.get("/download/:id", async (req, res) => {
     }
 });
 
-app.delete("/delete/:filename", async (req, res) => {
+app.delete("/api/delete/:filename", async (req, res) => {
     const { filename } = req.params;
 
     try {
@@ -124,7 +123,7 @@ app.delete("/delete/:filename", async (req, res) => {
     }
 });
 
-app.post("/delete-multiple", async (req, res) => {
+app.post("/api/delete-multiple", async (req, res) => {
     const { fileIds } = req.body; // Expect an array of file IDs
 
     if (!fileIds || fileIds.length === 0) {
@@ -174,7 +173,7 @@ app.post("/delete-multiple", async (req, res) => {
     }
 });
 
-app.get("/files", async (req, res) => {
+app.get("/api/files", async (req, res) => {
     const { walletAddress } = req.query;
 
     try {
@@ -185,7 +184,7 @@ app.get("/files", async (req, res) => {
         res.status(500).send("Error fetching files");
     }
 });
-app.get("/files/:id", async (req, res) => {
+app.get("/api/files/:id", async (req, res) => {
     try {
         const file = await File.findById(req.params.id);
         if (!file) {
@@ -197,7 +196,7 @@ app.get("/files/:id", async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
-app.post("/create-folder", upload.none(), async (req, res) => {
+app.post("/api/create-folder", upload.none(), async (req, res) => {
     const { folderName, walletAddress } = req.body;
 
     const folderPath = `uploads/${walletAddress}/${folderName}/`;
@@ -230,7 +229,7 @@ app.post("/create-folder", upload.none(), async (req, res) => {
         }
     });
 });
-app.post("/upload", upload.single("file"), async (req, res) => {
+app.post("/api/upload", upload.single("file"), async (req, res) => {
     const walletAddress = req.body.walletAddress;
     if (!req.file) {
         return res.status(400).send("No file uploaded.");
