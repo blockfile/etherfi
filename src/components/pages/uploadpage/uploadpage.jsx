@@ -338,7 +338,7 @@ function UploadPage() {
         }
 
         const fileIds = Array.from(selectedFiles);
-
+        console.log("Deleting files with IDs:", fileIds);
         try {
             const response = await axios.post(
                 "https://dapp.blockfile.xyz/delete-multiple",
