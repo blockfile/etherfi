@@ -8,7 +8,7 @@ const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const app = express();
 app.use(cors());
 app.use(express.static("public"));
-app.use(express.json()); // To parse JSON bodies
+
 app.use(express.json({ limit: "10000mb" }));
 app.use(express.urlencoded({ limit: "10000mb", extended: true }));
 
@@ -272,6 +272,9 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, function () {
+const server = app.listen(PORT, function () {
     console.log(`Server running on port ${PORT}`);
 });
+
+// Set the timeout to 0 to disable it, allowing uploads of any duration
+server.timeout = 0;
