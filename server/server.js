@@ -24,11 +24,14 @@ const upload = multer({
 // Fallback route handler (for SPA routing)
 
 const corsOptions = {
-    origin: "http://188.166.250.224:3000",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    preflightContinue: false,
-    optionsSuccessStatus: 200,
+    origin: [
+        "https://dapp.blockfile.xyz",
+        "http://localhost:3000",
+        "http://188.166.250.224:3000",
+    ], // Add your production and development URLs here
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
+app.use(cors(corsOptions));
 
 app.use(cors(corsOptions));
 const spacesEndpoint = new AWS.Endpoint("sgp1.digitaloceanspaces.com");
