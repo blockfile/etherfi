@@ -85,6 +85,7 @@ function UploadPage() {
     const [maxUploadSize, setMaxUploadSize] = useState(5 * 1024 * 1024 * 1024); // Default to 5GB
     const [windowSize, setWindowSize] = useState(window.innerWidth);
     const isWalletConnected = account && window.ethereum;
+
     useEffect(() => {
         console.log("Updated tokenBalance: ", tokenBalance); // For debugging
         let newSize;
@@ -118,6 +119,7 @@ function UploadPage() {
                 const response = await axios.get(
                     `https://dapp.blockfile.xyz/files?walletAddress=${account}`
                 );
+                console.log(response.data); // Log to see the data structure
                 setFiles(response.data);
             } catch (error) {
                 console.error("Error fetching files:", error);
@@ -581,78 +583,86 @@ function UploadPage() {
                         <div className="files-table-container md:max-h-[750px] overflow-y-auto  sm:max-h-[600px]">
                             <table className="min-w-full  ">
                                 <tbody>
-                                    {files.map((file, idx) => (
-                                        <tr
-                                            key={file.fileId}
-                                            className={`border-b hover:bg-slate-700 border-gray-700 ${
-                                                selectedFiles.has(file._id)
-                                                    ? "bg-blue-500" // Highlight selected rows
-                                                    : "bg-transparent"
-                                            }`}
-                                            onClick={() =>
-                                                toggleFileSelection(file._id)
-                                            }
-                                            onContextMenu={(e) =>
-                                                handleContextMenu(e, file._id)
-                                            }>
-                                            <td className="px-6 text-sm font-medium text-left ">
-                                                <div className="flex items-center space-x-3 ">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedFiles.has(
-                                                            file._id
-                                                        )}
-                                                        onChange={() =>
-                                                            toggleFileSelection(
+                                    {Array.isArray(files) &&
+                                        files.map((file, idx) => (
+                                            <tr
+                                                key={file.fileId}
+                                                className={`border-b hover:bg-slate-700 border-gray-700 ${
+                                                    selectedFiles.has(file._id)
+                                                        ? "bg-blue-500" // Highlight selected rows
+                                                        : "bg-transparent"
+                                                }`}
+                                                onClick={() =>
+                                                    toggleFileSelection(
+                                                        file._id
+                                                    )
+                                                }
+                                                onContextMenu={(e) =>
+                                                    handleContextMenu(
+                                                        e,
+                                                        file._id
+                                                    )
+                                                }>
+                                                <td className="px-6 text-sm font-medium text-left ">
+                                                    <div className="flex items-center space-x-3 ">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedFiles.has(
                                                                 file._id
-                                                            )
-                                                        }
-                                                        className="form-checkbox  text-blue-600"
-                                                    />
-                                                    {(() => {
-                                                        const fileExtension =
-                                                            file.filename
-                                                                .split(".")
-                                                                .pop()
-                                                                .toLowerCase();
-                                                        const IconComponent =
-                                                            fileTypeIcons[
-                                                                fileExtension
-                                                            ] || <FaFileAlt />; // Default to FaFileAlt if extension not found
-                                                        return IconComponent; // Use the IconComponent directly
-                                                    })()}
-
-                                                    {/* Always visible on medium screens and up */}
-                                                    <div>
-                                                        <span className="hidden sm:block truncate max-w-xs">
-                                                            {file.filename}
-                                                        </span>
-                                                        {/* Visible only on small screens */}
-                                                        <span className="block sm:hidden truncate max-w-xs">
-                                                            {file.filename
-                                                                .length > 6
-                                                                ? `${file.filename.substring(
-                                                                      0,
-                                                                      6
-                                                                  )}…`
-                                                                : file.filename}
-                                                        </span>
-                                                        <span className="file-size text-xs text-gray-400 ">
-                                                            {formatFileSize(
-                                                                file.size
                                                             )}
-                                                        </span>
+                                                            onChange={() =>
+                                                                toggleFileSelection(
+                                                                    file._id
+                                                                )
+                                                            }
+                                                            className="form-checkbox  text-blue-600"
+                                                        />
+                                                        {(() => {
+                                                            const fileExtension =
+                                                                file.filename
+                                                                    .split(".")
+                                                                    .pop()
+                                                                    .toLowerCase();
+                                                            const IconComponent =
+                                                                fileTypeIcons[
+                                                                    fileExtension
+                                                                ] || (
+                                                                    <FaFileAlt />
+                                                                ); // Default to FaFileAlt if extension not found
+                                                            return IconComponent; // Use the IconComponent directly
+                                                        })()}
+
+                                                        {/* Always visible on medium screens and up */}
+                                                        <div>
+                                                            <span className="hidden sm:block truncate max-w-xs">
+                                                                {file.filename}
+                                                            </span>
+                                                            {/* Visible only on small screens */}
+                                                            <span className="block sm:hidden truncate max-w-xs">
+                                                                {file.filename
+                                                                    .length > 6
+                                                                    ? `${file.filename.substring(
+                                                                          0,
+                                                                          6
+                                                                      )}…`
+                                                                    : file.filename}
+                                                            </span>
+                                                            <span className="file-size text-xs text-gray-400 ">
+                                                                {formatFileSize(
+                                                                    file.size
+                                                                )}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td className="text-xs text-gray-500"></td>
-                                            <td className="text-xs text-gray-500">
-                                                {new Date(
-                                                    file.createdAt
-                                                ).toLocaleString()}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                </td>
+                                                <td className="text-xs text-gray-500"></td>
+                                                <td className="text-xs text-gray-500">
+                                                    {new Date(
+                                                        file.createdAt
+                                                    ).toLocaleString()}
+                                                </td>
+                                            </tr>
+                                        ))}
                                 </tbody>
                             </table>
                         </div>
