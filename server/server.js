@@ -24,7 +24,7 @@ const upload = multer({
 // Fallback route handler (for SPA routing)
 
 const corsOptions = {
-    origin: "https://dapp.blockfile.xyz",
+    origin: "http://188.166.250.224:3000",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
     optionsSuccessStatus: 200,
