@@ -28,11 +28,14 @@ wss.on("connection", (ws) => {
 
 // Fallback route handler (for SPA routing)
 
-app.use(
-    cors({
-        origin: "https://dapp.blockfile.xyz",
-    })
-);
+const corsOptions = {
+    origin: "http://188.166.250.224:3000", // or use '*' to allow any origin
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 const spacesEndpoint = new AWS.Endpoint("sgp1.digitaloceanspaces.com");
 const s3 = new AWS.S3({
     endpoint: spacesEndpoint.hostname, // Correct, just the hostname, no "https://"
