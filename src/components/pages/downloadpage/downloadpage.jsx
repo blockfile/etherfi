@@ -15,7 +15,17 @@ function DownloadPage() {
                 const response = await axios.get(
                     `https://dapp.blockfile.xyz/api/files/${id}`
                 );
-                setFile(response.data);
+                if (response.data) {
+                    const formattedSize = (
+                        response.data.size /
+                        1024 /
+                        1024
+                    ).toFixed(2); // Convert bytes to MB and round to 2 decimal places
+                    setFile({
+                        ...response.data,
+                        formattedSize: `${formattedSize} MB`, // Add formattedSize to the file object
+                    });
+                }
             } catch (error) {
                 console.error("Failed to fetch file:", error);
             }
@@ -45,7 +55,7 @@ function DownloadPage() {
                                 <p className="filename">
                                     Filename: {file.filename}
                                 </p>
-                                <p>Size: {file.size}</p>
+                                <p>Size: {file.formattedSize}</p>
                                 <p>
                                     Uploaded:{" "}
                                     {new Date(
