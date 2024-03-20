@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import Navbar from "../../navbar/navbar";
 import axios from "axios";
-
+import Footer from "../../Footer/Footer";
 import "./uploadpage.css";
 import { FaFolderPlus } from "react-icons/fa";
 import { FiFilePlus } from "react-icons/fi";
@@ -150,6 +150,10 @@ function UploadPage() {
             document.removeEventListener("contextmenu", handleRightClick);
         };
     }, []);
+    const recalculateUploadPercentage = async () => {
+        await fetchTotalUploadedSize(); // Fetch the updated total uploaded size
+        fetchFiles(); // Fetch the updated files list
+    };
     const fetchTotalUploadedSize = async () => {
         if (account) {
             try {
@@ -322,6 +326,17 @@ function UploadPage() {
         }
     };
 
+    useEffect(() => {
+        // Check if all files in the queue have a status of 'done', 'error', or 'cancelled'
+        const allUploadsCompleted = uploadQueue.every((file) =>
+            ["done", "error", "cancelled"].includes(file.status)
+        );
+
+        if (allUploadsCompleted && uploadQueue.length > 0) {
+            fetchFiles(); // Refresh the file list
+            fetchTotalUploadedSize(); // Update the total uploaded size
+        }
+    }, [uploadQueue]);
     const removeFileFromQueue = (indexToRemove) => {
         const fileData = uploadQueue[indexToRemove];
 
@@ -366,7 +381,9 @@ function UploadPage() {
                 setFiles((prevFiles) =>
                     prevFiles.filter((file) => !selectedFiles.has(file._id))
                 );
-                setSelectedFiles(new Set()); // Clear selection after deletion
+                // Clear selection after deletion
+                await recalculateUploadPercentage();
+                setSelectedFiles(new Set());
                 alert("Selected files deleted successfully!");
             } else {
                 alert("Failed to delete selected files.");
@@ -386,17 +403,24 @@ function UploadPage() {
     };
 
     const copyLink = (fileId) => {
-        // Since copying a link makes sense only for a single file, ensure this action is called with a single fileId
-        const file = files.find((file) => file._id === fileId);
-        if (file && file.url) {
+        // Find the file object based on fileId
+        const file = files.find((f) => f._id === fileId);
+        if (file) {
+            // Assuming the download URL is something like 'https://dapp.blockfile.xyz/download/{fileId}'
+            // Adjust this URL structure as needed for your app
+            const downloadUrl = `https://dapp.blockfile.xyz/download/${fileId}`;
+
+            // Use the navigator.clipboard API to copy the download URL to the clipboard
             navigator.clipboard
-                .writeText(file.url)
+                .writeText(downloadUrl)
                 .then(() => alert("Link copied to clipboard!"))
-                .catch(() => alert("Failed to copy link."));
+                .catch((err) => alert("Failed to copy link. Error: " + err));
+            hideContextMenu();
+        } else {
+            alert("File not found.");
         }
-        console.log("Copy File Link", fileId);
-        hideContextMenu();
     };
+
     useEffect(() => {
         const handleGlobalClick = (e) => {
             if (
@@ -414,7 +438,9 @@ function UploadPage() {
     const closeModal = () => {
         // Check if all files are done uploading
         const allDone = uploadQueue.every((file) => file.status === "done");
-
+        setIsModalOpen(false);
+        fetchFiles(); // Fetch latest files list
+        setUploadQueue([]);
         let shouldCloseModal = true; // Assume we can close the modal
 
         // If not all files are done uploading and there are files in the upload queue, ask the user for confirmation
@@ -495,10 +521,11 @@ function UploadPage() {
     }, []);
 
     return (
-        <div className="bg-gray-900 text-white h-screen font-anta bg  ">
-            <Navbar />
-            <div className="flex">
-                {/* <div className="w-1/4 p-4 border-r border-gray-700 my-3">
+        <div>
+            <div className="bg-gray-900 text-white h-screen font-anta bg  ">
+                <Navbar />
+                <div className="flex">
+                    {/* <div className="w-1/4 p-4 border-r border-gray-700 my-3">
                     <h2 className="text-lg font-semibold mb-4">My Folders</h2>
                     <div className="mb-4 space-y-4">
                         <div>
@@ -524,290 +551,305 @@ function UploadPage() {
                         <p>You don't have any folders</p>
                     </div>
                 </div> */}
-                <div className="w-full p-4">
-                    <div className=" md:flex justify-between mx-6 my-2 ">
-                        <div>
-                            <span className="text-lg font-semibold mb-4">
-                                My Files
-                            </span>
-                        </div>
-                        <div className="md:flex sm:space-y-4 space-x-4">
-                            <div className="">
-                                <div className="w-full bg-gray-300 rounded-full h-2.5 dark:bg-gray-700 mt-2">
-                                    <div
-                                        className="bg-blue-600 h-2.5 rounded-full"
-                                        style={{
-                                            width: `${uploadPercentage}%`,
-                                        }}></div>
+                    <div className="w-full p-4">
+                        <div className=" md:flex justify-between mx-6 my-2 ">
+                            <div>
+                                <span className="text-lg font-semibold mb-4">
+                                    My Files
+                                </span>
+                            </div>
+                            <div className="md:flex sm:space-y-4 space-x-4">
+                                <div className="">
+                                    <div className="w-full bg-gray-300 rounded-full h-2.5 dark:bg-gray-700 mt-2">
+                                        <div
+                                            className="bg-blue-600 h-2.5 rounded-full"
+                                            style={{
+                                                width: `${uploadPercentage}%`,
+                                            }}></div>
+                                    </div>
+                                    <div className="text-sm sm:text-center md:text-right mt-1">
+                                        {uploadPercentage}% (
+                                        {(
+                                            totalUploadedSize /
+                                            (1024 * 1024)
+                                        ).toFixed(2)}{" "}
+                                        MB /{" "}
+                                        {(
+                                            maxUploadSize /
+                                            (1024 * 1024)
+                                        ).toFixed(2)}{" "}
+                                        MB)
+                                    </div>
                                 </div>
-                                <div className="text-sm sm:text-center md:text-right mt-1">
-                                    {uploadPercentage}% (
-                                    {(
-                                        totalUploadedSize /
-                                        (1024 * 1024)
-                                    ).toFixed(2)}{" "}
-                                    MB /{" "}
-                                    {(maxUploadSize / (1024 * 1024)).toFixed(2)}{" "}
-                                    MB)
+                                <div>
+                                    <button
+                                        onClick={handleUploadButtonClick}
+                                        className={`${
+                                            isWalletConnected
+                                                ? "bg-blue-500 hover:bg-blue-700"
+                                                : "bg-gray-500 cursor-not-allowed"
+                                        } text-white font-bold py-2 px-4 rounded`}
+                                        disabled={!isWalletConnected}>
+                                        Upload
+                                    </button>
                                 </div>
                             </div>
+                        </div>
+                        <div className="flex  mx-6 my-2 space-x-4 ">
+                            <div className=" ">
+                                <div className=" ">
+                                    <input
+                                        type="checkbox"
+                                        className="form-checkbox "
+                                        onChange={handleSelectAll}
+                                        checked={
+                                            files.length > 0 &&
+                                            selectedFiles.size === files.length
+                                        }
+                                    />
+
+                                    <span className=""> SELECT ALL FILES</span>
+                                </div>
+                            </div>
+                        </div>
+                        {files.length === 0 ? (
+                            <div className="text-center">
+                                {isWalletConnected
+                                    ? "This folder is empty"
+                                    : "Please connect your MetaMask wallet first."}
+                            </div>
+                        ) : (
+                            <div className="files-table-container md:max-h-[750px] overflow-y-auto  sm:max-h-[600px]">
+                                <table className="min-w-full  ">
+                                    <tbody>
+                                        {Array.isArray(files) &&
+                                            files.map((file, idx) => (
+                                                <tr
+                                                    key={file.fileId}
+                                                    className={`border-b hover:bg-slate-700 border-gray-700 ${
+                                                        selectedFiles.has(
+                                                            file._id
+                                                        )
+                                                            ? "bg-blue-500" // Highlight selected rows
+                                                            : "bg-transparent"
+                                                    }`}
+                                                    onClick={() =>
+                                                        toggleFileSelection(
+                                                            file._id
+                                                        )
+                                                    }
+                                                    onContextMenu={(e) =>
+                                                        handleContextMenu(
+                                                            e,
+                                                            file._id
+                                                        )
+                                                    }>
+                                                    <td className="px-6 text-sm font-medium text-left ">
+                                                        <div className="flex items-center space-x-3 ">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={selectedFiles.has(
+                                                                    file._id
+                                                                )}
+                                                                onChange={() =>
+                                                                    toggleFileSelection(
+                                                                        file._id
+                                                                    )
+                                                                }
+                                                                className="form-checkbox  text-blue-600"
+                                                            />
+                                                            {(() => {
+                                                                const fileExtension =
+                                                                    file.filename
+                                                                        .split(
+                                                                            "."
+                                                                        )
+                                                                        .pop()
+                                                                        .toLowerCase();
+                                                                const IconComponent =
+                                                                    fileTypeIcons[
+                                                                        fileExtension
+                                                                    ] || (
+                                                                        <FaFileAlt />
+                                                                    ); // Default to FaFileAlt if extension not found
+                                                                return IconComponent; // Use the IconComponent directly
+                                                            })()}
+
+                                                            {/* Always visible on medium screens and up */}
+                                                            <div>
+                                                                <span className="hidden sm:block truncate max-w-xs">
+                                                                    {
+                                                                        file.filename
+                                                                    }
+                                                                </span>
+                                                                {/* Visible only on small screens */}
+                                                                <span className="block sm:hidden truncate max-w-xs">
+                                                                    {file
+                                                                        .filename
+                                                                        .length >
+                                                                    6
+                                                                        ? `${file.filename.substring(
+                                                                              0,
+                                                                              6
+                                                                          )}…`
+                                                                        : file.filename}
+                                                                </span>
+                                                                <span className="file-size text-xs text-gray-400 ">
+                                                                    {formatFileSize(
+                                                                        file.size
+                                                                    )}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="text-xs text-gray-500"></td>
+                                                    <td className="text-xs text-gray-500">
+                                                        {new Date(
+                                                            file.createdAt
+                                                        ).toLocaleString()}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div
+                    ref={contextMenuRef}
+                    className="context-menu"
+                    onContextMenu={(e) => e.preventDefault()}>
+                    {contextMenuFileIds.length === 1 && (
+                        <Link to={`/download/${contextMenuFileIds[0]}`}>
+                            <button>Download</button>
+                        </Link>
+                    )}
+
+                    <button onClick={() => deleteFiles(contextMenuFileIds)}>
+                        Delete
+                    </button>
+                    <button onClick={() => moveFile(contextMenuFileIds)}>
+                        Move
+                    </button>
+                    {contextMenuFileIds.length === 1 && (
+                        <button onClick={() => copyLink(contextMenuFileIds[0])}>
+                            Copy Link
+                        </button>
+                    )}
+                </div>
+                {isModalOpen && (
+                    <div className="fixed inset-0 backdrop-blur-sm   z-50 flex justify-center items-center ">
+                        <div className=" bg-modal p-4 rounded-2xl shadow-lg ">
                             <div>
                                 <button
-                                    onClick={handleUploadButtonClick}
-                                    className={`${
-                                        isWalletConnected
-                                            ? "bg-blue-500 hover:bg-blue-700"
-                                            : "bg-gray-500 cursor-not-allowed"
-                                    } text-white font-bold py-2 px-4 rounded`}
-                                    disabled={!isWalletConnected}>
-                                    Upload
+                                    onClick={closeModal}
+                                    className="flex justify-end text-5xl text-white">
+                                    &times;
+                                </button>
+                            </div>
+                            <h3 className="text-lg font-bold">Upload Files</h3>
+                            <div className=" overflow-y-auto max-h-[600px] files-table-container ">
+                                {uploadQueue.length > 0 ? (
+                                    <div className="sm:mx-2 sm:my-2 md:mx-24 md:my-24">
+                                        {uploadQueue.map((fileData, index) => (
+                                            <div key={index} className="mb-4">
+                                                <div className="flex justify-between items-center space-x-2">
+                                                    <div className=" filename ">
+                                                        {fileData.file.name}
+                                                    </div>
+                                                    <button
+                                                        onClick={() =>
+                                                            removeFileFromQueue(
+                                                                index
+                                                            )
+                                                        }
+                                                        className="text-red-500 hover:text-red-700 mr-2">
+                                                        X
+                                                    </button>
+                                                </div>
+                                                <div className="w-full bg-gray-200 rounded-full h-5 dark:bg-gray-700 my-2 relative">
+                                                    <div></div>
+                                                    <div
+                                                        className="bg-blue-600 h-5 rounded-full text-white text-sm flex items-center justify-end"
+                                                        style={{
+                                                            width: `${fileData.progress}%`,
+                                                        }}>
+                                                        <div
+                                                            className={`${
+                                                                fileData.progress <
+                                                                10
+                                                                    ? "hidden"
+                                                                    : "mx-auto my-auto"
+                                                            }`}>
+                                                            {fileData.progress}%
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="text-center text-sm">
+                                                    {fileData.status ===
+                                                        "uploading" &&
+                                                        "Uploading..."}
+                                                    {fileData.status ===
+                                                        "finalizing" &&
+                                                        "Finalizing..."}
+                                                    {fileData.status ===
+                                                        "done" &&
+                                                        "Upload Complete!"}
+                                                    {fileData.status ===
+                                                        "error" &&
+                                                        "Error in upload."}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="mx-auto border-2 border-dashed pl-5 my-5">
+                                        <div
+                                            className="md:mx-24 md:my-24 sm:mx-20 sm:my-20"
+                                            onClick={handleIconClick}>
+                                            <FaFolderPlus
+                                                className="cursor-pointer mx-auto"
+                                                size={iconSize}
+                                            />
+
+                                            <p className="text-center mt-2">
+                                                Add Files
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="flex space-x-5 justify-center mb-5">
+                                    <div
+                                        onClick={handleIconClick}
+                                        className="cursor-pointer">
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            multiple // Allow multiple file selection
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                        />
+                                        <div className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                            <FiFilePlus size={24} />
+                                            <span>Add Files</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={handleUpload}
+                                    disabled={uploadQueue.some(
+                                        (file) => file.status === "uploading"
+                                    )}
+                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                    Start Upload
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <div className="flex  mx-6 my-2 space-x-4 ">
-                        <div className=" ">
-                            <div className=" ">
-                                <input
-                                    type="checkbox"
-                                    className="form-checkbox "
-                                    onChange={handleSelectAll}
-                                    checked={
-                                        files.length > 0 &&
-                                        selectedFiles.size === files.length
-                                    }
-                                />
-
-                                <span className=""> SELECT ALL FILES</span>
-                            </div>
-                        </div>
-                    </div>
-                    {files.length === 0 ? (
-                        <div className="text-center">
-                            {isWalletConnected
-                                ? "This folder is empty"
-                                : "Please connect your MetaMask wallet first."}
-                        </div>
-                    ) : (
-                        <div className="files-table-container md:max-h-[750px] overflow-y-auto  sm:max-h-[600px]">
-                            <table className="min-w-full  ">
-                                <tbody>
-                                    {Array.isArray(files) &&
-                                        files.map((file, idx) => (
-                                            <tr
-                                                key={file.fileId}
-                                                className={`border-b hover:bg-slate-700 border-gray-700 ${
-                                                    selectedFiles.has(file._id)
-                                                        ? "bg-blue-500" // Highlight selected rows
-                                                        : "bg-transparent"
-                                                }`}
-                                                onClick={() =>
-                                                    toggleFileSelection(
-                                                        file._id
-                                                    )
-                                                }
-                                                onContextMenu={(e) =>
-                                                    handleContextMenu(
-                                                        e,
-                                                        file._id
-                                                    )
-                                                }>
-                                                <td className="px-6 text-sm font-medium text-left ">
-                                                    <div className="flex items-center space-x-3 ">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={selectedFiles.has(
-                                                                file._id
-                                                            )}
-                                                            onChange={() =>
-                                                                toggleFileSelection(
-                                                                    file._id
-                                                                )
-                                                            }
-                                                            className="form-checkbox  text-blue-600"
-                                                        />
-                                                        {(() => {
-                                                            const fileExtension =
-                                                                file.filename
-                                                                    .split(".")
-                                                                    .pop()
-                                                                    .toLowerCase();
-                                                            const IconComponent =
-                                                                fileTypeIcons[
-                                                                    fileExtension
-                                                                ] || (
-                                                                    <FaFileAlt />
-                                                                ); // Default to FaFileAlt if extension not found
-                                                            return IconComponent; // Use the IconComponent directly
-                                                        })()}
-
-                                                        {/* Always visible on medium screens and up */}
-                                                        <div>
-                                                            <span className="hidden sm:block truncate max-w-xs">
-                                                                {file.filename}
-                                                            </span>
-                                                            {/* Visible only on small screens */}
-                                                            <span className="block sm:hidden truncate max-w-xs">
-                                                                {file.filename
-                                                                    .length > 6
-                                                                    ? `${file.filename.substring(
-                                                                          0,
-                                                                          6
-                                                                      )}…`
-                                                                    : file.filename}
-                                                            </span>
-                                                            <span className="file-size text-xs text-gray-400 ">
-                                                                {formatFileSize(
-                                                                    file.size
-                                                                )}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="text-xs text-gray-500"></td>
-                                                <td className="text-xs text-gray-500">
-                                                    {new Date(
-                                                        file.createdAt
-                                                    ).toLocaleString()}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </div>
-            </div>
-            <div
-                ref={contextMenuRef}
-                className="context-menu"
-                onContextMenu={(e) => e.preventDefault()}>
-                {contextMenuFileIds.length === 1 && (
-                    <Link to={`/download/${contextMenuFileIds[0]}`}>
-                        <button>Download</button>
-                    </Link>
-                )}
-
-                <button onClick={() => deleteFiles(contextMenuFileIds)}>
-                    Delete
-                </button>
-                <button onClick={() => moveFile(contextMenuFileIds)}>
-                    Move
-                </button>
-                {contextMenuFileIds.length === 1 && (
-                    <button onClick={() => copyLink(contextMenuFileIds[0])}>
-                        Copy Link
-                    </button>
                 )}
             </div>
-            {isModalOpen && (
-                <div className="fixed inset-0 backdrop-blur-sm   z-50 flex justify-center items-center ">
-                    <div className=" bg-modal p-4 rounded-2xl shadow-lg ">
-                        <div>
-                            <button
-                                onClick={closeModal}
-                                className="flex justify-end text-5xl text-white">
-                                &times;
-                            </button>
-                        </div>
-                        <h3 className="text-lg font-bold">Upload Files</h3>
-                        <div className=" overflow-y-auto max-h-[600px] files-table-container ">
-                            {uploadQueue.length > 0 ? (
-                                <div className="sm:mx-2 sm:my-2 md:mx-24 md:my-24">
-                                    {uploadQueue.map((fileData, index) => (
-                                        <div key={index} className="mb-4">
-                                            <div className="flex justify-between items-center space-x-2">
-                                                <div className=" filename ">
-                                                    {fileData.file.name}
-                                                </div>
-                                                <button
-                                                    onClick={() =>
-                                                        removeFileFromQueue(
-                                                            index
-                                                        )
-                                                    }
-                                                    className="text-red-500 hover:text-red-700 mr-2">
-                                                    X
-                                                </button>
-                                            </div>
-                                            <div className="w-full bg-gray-200 rounded-full h-5 dark:bg-gray-700 my-2 relative">
-                                                <div></div>
-                                                <div
-                                                    className="bg-blue-600 h-5 rounded-full text-white text-sm flex items-center justify-end"
-                                                    style={{
-                                                        width: `${fileData.progress}%`,
-                                                    }}>
-                                                    <div
-                                                        className={`${
-                                                            fileData.progress <
-                                                            10
-                                                                ? "hidden"
-                                                                : "mx-auto my-auto"
-                                                        }`}>
-                                                        {fileData.progress}%
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="text-center text-sm">
-                                                {fileData.status ===
-                                                    "uploading" &&
-                                                    "Uploading..."}
-                                                {fileData.status ===
-                                                    "finalizing" &&
-                                                    "Finalizing..."}
-                                                {fileData.status === "done" &&
-                                                    "Upload Complete!"}
-                                                {fileData.status === "error" &&
-                                                    "Error in upload."}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="mx-auto border-2 border-dashed pl-5 my-5">
-                                    <div
-                                        className="md:mx-24 md:my-24 sm:mx-20 sm:my-20"
-                                        onClick={handleIconClick}>
-                                        <FaFolderPlus
-                                            className="cursor-pointer mx-auto"
-                                            size={iconSize}
-                                        />
-
-                                        <p className="text-center mt-2">
-                                            Add Files
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-                            <div className="flex space-x-5 justify-center mb-5">
-                                <div
-                                    onClick={handleIconClick}
-                                    className="cursor-pointer">
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        multiple // Allow multiple file selection
-                                        onChange={handleFileChange}
-                                        className="hidden"
-                                    />
-                                    <div className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                        <FiFilePlus size={24} />
-                                        <span>Add Files</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <button
-                                onClick={handleUpload}
-                                disabled={uploadQueue.some(
-                                    (file) => file.status === "uploading"
-                                )}
-                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Start Upload
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <Footer />
         </div>
     );
 }

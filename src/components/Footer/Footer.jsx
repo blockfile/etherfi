@@ -1,11 +1,11 @@
 import React from "react";
 import { FaTwitter, FaTelegram } from "react-icons/fa";
 import { BsGlobe } from "react-icons/bs";
-
+import "./Footer.css";
 function Footer() {
     return (
-        <div className="flex flex-col justify-center items-center  text-white text-center ">
-            <div className=" bottom-10 left-0 right-0 flex justify-center items-center space-x-7 ">
+        <div className="flex flex-col justify-center items-center  text-white text-center font-anta  ">
+            <div className=" absolute bottom-10 left-0 right-0 flex justify-center items-center space-x-7  ">
                 <a
                     href="https://t.me/blockfileofficial"
                     target="_blank"
@@ -28,8 +28,9 @@ function Footer() {
                     <BsGlobe />
                 </a>
             </div>
-            <div className=" bottom-2 left-0 right-0 mt-5  text-xs">
-                ©2024 BlockFile | All Rights Reserved
+
+            <div className=" bottom-2 left-0 right-0 mt-5 absolute  text-xs">
+                <span> ©2024 BlockFile | All Rights Reserved | V.1.0.1</span>
             </div>
         </div>
     );

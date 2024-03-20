@@ -4,7 +4,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import "./downloadpage.css";
 import logo from "../../assets/Images/logo.png";
-
+import Footer from "../../Footer/Footer";
 function DownloadPage() {
     let { id } = useParams();
     const [file, setFile] = useState(null);
@@ -67,6 +67,7 @@ function DownloadPage() {
                     )}
                 </div>
             </div>
+            <Footer />
         </div>
     );
 }
