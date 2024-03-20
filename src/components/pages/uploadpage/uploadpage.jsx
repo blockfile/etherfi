@@ -89,12 +89,21 @@ function UploadPage() {
     useEffect(() => {
         console.log("Updated tokenBalance: ", tokenBalance); // For debugging
         let newSize;
-        if (tokenBalance >= 2000000) {
-            newSize = 20 * 1024 * 1024 * 1024; // 20GB
-        } else if (tokenBalance >= 1000000) {
+        if (tokenBalance >= 1500001) {
             newSize = 10 * 1024 * 1024 * 1024; // 10GB
-        } else {
+        } else if (tokenBalance >= 1000001) {
             newSize = 5 * 1024 * 1024 * 1024; // 5GB
+        } else if (tokenBalance >= 500001) {
+            newSize = 1024 * 1024 * 1024; // 1GB
+        } else if (tokenBalance >= 100001) {
+            newSize = 500 * 1024 * 1024; // 500MB
+        } else if (tokenBalance >= 10001) {
+            newSize = 100 * 1024 * 1024; // 100MB
+        } else if (tokenBalance >= 0) {
+            // Assuming you want to include token holders with less than 10,000 tokens
+            newSize = 5 * 1024 * 1024; // 5MB
+        } else {
+            newSize = 1 * 1024 * 1024; // Default to 1MB if for some reason token balance is negative
         }
         setMaxUploadSize(newSize);
     }, [tokenBalance]);
@@ -486,7 +495,7 @@ function UploadPage() {
     }, []);
 
     return (
-        <div className="bg-gray-900 text-white h-screen font-anta bg ">
+        <div className="bg-gray-900 text-white h-screen font-anta bg  ">
             <Navbar />
             <div className="flex">
                 {/* <div className="w-1/4 p-4 border-r border-gray-700 my-3">

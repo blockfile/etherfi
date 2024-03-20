@@ -4,7 +4,7 @@ import Navbar from "../../navbar/navbar";
 import Scene from "../../assets/scenebg/scene"; // Adjust the import path according to your file structure
 import UploadBtn from "../../assets/uploadbtn/uploadbtn";
 import { Link } from "react-router-dom";
-
+import Footer from "../../Footer/Footer";
 function Main() {
     return (
         <div className="bg  sm:overflow-hidden">
@@ -31,6 +31,7 @@ function Main() {
                     </div>
                 </div>
             </div>
+            <Footer />
         </div>
     );
 }
