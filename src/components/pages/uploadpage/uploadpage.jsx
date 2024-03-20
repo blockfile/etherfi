@@ -89,21 +89,20 @@ function UploadPage() {
     useEffect(() => {
         console.log("Updated tokenBalance: ", tokenBalance); // For debugging
         let newSize;
-        if (tokenBalance >= 1500001) {
+        if (tokenBalance >= 1500001 && tokenBalance <= 2000000) {
             newSize = 10 * 1024 * 1024 * 1024; // 10GB
-        } else if (tokenBalance >= 1000001) {
+        } else if (tokenBalance >= 1000001 && tokenBalance <= 1500000) {
             newSize = 5 * 1024 * 1024 * 1024; // 5GB
-        } else if (tokenBalance >= 500001) {
+        } else if (tokenBalance >= 500001 && tokenBalance <= 1000000) {
             newSize = 1024 * 1024 * 1024; // 1GB
-        } else if (tokenBalance >= 100001) {
+        } else if (tokenBalance >= 100001 && tokenBalance <= 500000) {
             newSize = 500 * 1024 * 1024; // 500MB
-        } else if (tokenBalance >= 10001) {
+        } else if (tokenBalance >= 10001 && tokenBalance <= 100000) {
             newSize = 100 * 1024 * 1024; // 100MB
-        } else if (tokenBalance >= 0) {
-            // Assuming you want to include token holders with less than 10,000 tokens
-            newSize = 5 * 1024 * 1024; // 5MB
+        } else if (tokenBalance >= 1 && tokenBalance <= 10000) {
+            newSize = 10 * 1024 * 1024; // 10MB
         } else {
-            newSize = 1 * 1024 * 1024; // Default to 1MB if for some reason token balance is negative
+            newSize = 5 * 1024 * 1024; // Default to 5MB for 0 or negative token balances
         }
         setMaxUploadSize(newSize);
     }, [tokenBalance]);
