@@ -18,6 +18,8 @@ const router = express.Router();
 const pinataApiKey = "b9b8cf6273f8a2555382";
 const pinataSecretApiKey =
     "0c8842a3331dd3af8761aa67427d63538debdb8e632eb689dd5cfdc000bc8825";
+PINATA_JWT_TOKEN =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIxMDNmZTQzZS0yMmEyLTRmNGItYmM2Mi1jZWU4ZDAwZWNmNDAiLCJlbWFpbCI6InJlbnppdmFuMTAyMDEzQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJiOWI4Y2Y2MjczZjhhMjU1NTM4MiIsInNjb3BlZEtleVNlY3JldCI6IjBjODg0MmEzMzMxZGQzYWY4NzYxYWE2NzQyN2Q2MzUzOGRlYmRiOGU2MzJlYjY4OWRkNWNmZGMwMDBiYzg4MjUiLCJpYXQiOjE3MTE1MjI5ODd9.TifShSs0X2xWp9aHisfvk4BAd2vOsLeGJfKjgzgGdI0";
 // Multer configuration for handling multipart/form-data with no file size limit
 const storage = multer.memoryStorage(); // Using memory storage
 const upload = multer({
@@ -41,17 +43,21 @@ app.use(cors(corsOptions));
 
 const spacesEndpoint = new AWS.Endpoint("sgp1.digitaloceanspaces.com");
 const s3 = new AWS.S3({
-    endpoint: spacesEndpoint.hostname, // Correct, just the hostname, no "https://"
-    accessKeyId: process.env.SPACES_ACCESS_KEY_ID,
-    secretAccessKey: process.env.SPACES_SECRET_ACCESS_KEY,
+    endpoint: spacesEndpoint.hostname,
+    accessKeyId: "DO00U4ECB98HX87HX9PF", // Directly using the value
+    secretAccessKey: "gaFjG7KzrmrAjLTgRpOKhjRZ9LnJP1tveyLVVDpUoF8", // Directly using the value
 });
 const mongoose = require("mongoose");
 
 mongoose
-    .connect(process.env.DATABASE_ACCESS, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
+    .connect(
+        "mongodb+srv://sphereprotocol:sphereprotocol%402024@cluster0.8prwtk2.mongodb.net/sphere",
+        {
+            // Directly using the value
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        }
+    )
     .then(() => console.log("MongoDB connected..."))
     .catch((err) => console.log(err));
 
@@ -153,7 +159,7 @@ app.post("/api/uploadToIPFS", upload.single("file"), async (req, res) => {
             {
                 maxBodyLength: "Infinity",
                 headers: {
-                    Authorization: `Bearer ${process.env.PINATA_JWT_TOKEN}`,
+                    Authorization: `Bearer ${pinataJwtToken}`,
                     ...formData.getHeaders(),
                 },
             }
