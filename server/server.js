@@ -31,9 +31,9 @@ const upload = multer({
 
 const corsOptions = {
     origin: [
-        "https://dapp.blockfile.xyz",
+        "https://app.blockfile.xyz",
         "http://localhost:3000",
-        "http://188.166.227.116:3000",
+        "http://159.223.35.102:3000",
     ], // Add your production and development URLs here
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
