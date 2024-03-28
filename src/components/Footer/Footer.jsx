@@ -30,7 +30,7 @@ function Footer() {
             </div>
 
             <div className=" bottom-2 left-0 right-0 mt-5 absolute  text-xs">
-                <span> ©2024 BlockFile | All Rights Reserved | V.1.0.1</span>
+                <span> ©2024 BlockFile | All Rights Reserved | V1.1.0</span>
             </div>
         </div>
     );

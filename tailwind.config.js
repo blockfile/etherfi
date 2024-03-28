@@ -9,7 +9,13 @@ module.exports = {
             xl: "1280px", // Desktops
             "2xl": "1536px", // Large screens
         },
-        extend: {},
+        extend: {
+            fontFamily: {
+                // Define your custom font names and their font-family values
+                Anta: ['"Anta"'], // Example custom font
+                // Add more custom fonts as needed
+            },
+        },
     },
     plugins: [],
 };

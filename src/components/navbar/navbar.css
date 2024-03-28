@@ -198,3 +198,28 @@ nav .profile-area button {
 .overlay.show {
     display: block;
 }
+
+.modal-shape {
+    clip-path: polygon(
+        0 0px,
+        22px 0,
+        100% 0,
+        100% calc(100% - 22px),
+        calc(100% - 22px) 100%,
+        0 100%
+    );
+}
+.modal-div {
+    clip-path: polygon(
+        0 22px,
+        22px 0,
+        100% 0,
+        100% calc(100% - 22px),
+        calc(100% - 22px) 100%,
+        0 100%
+    );
+}
+.ModalBox_box__divider__4L1XL {
+    stroke: #bcbcbc; /* This sets the color of the line */
+    /* Add additional styling as needed */
+}
