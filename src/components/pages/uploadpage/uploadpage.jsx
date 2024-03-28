@@ -105,7 +105,7 @@ function UploadPage() {
         if (!account) return;
         try {
             const response = await axios.get(
-                `https://dapp.blockfile.xyz/api/ipfsFiles?walletAddress=${account}`
+                `https://app.blockfile.xyz/api/ipfsFiles?walletAddress=${account}`
             );
             setIpfsFiles(response.data);
             console.log("IPFS Files fetched: ", response.data); // Debugging
@@ -153,7 +153,7 @@ function UploadPage() {
         if (account) {
             try {
                 const response = await axios.get(
-                    `https://dapp.blockfile.xyz/api/files?walletAddress=${account}`
+                    `https://app.blockfile.xyz/api/files?walletAddress=${account}`
                 );
                 console.log(response.data); // Log to see the data structure
                 setFiles(response.data);
@@ -186,7 +186,7 @@ function UploadPage() {
         if (account) {
             try {
                 const response = await axios.get(
-                    `https://dapp.blockfile.xyz/api/totalSize?walletAddress=${account}`
+                    `https://app.blockfile.xyz/api/totalSize?walletAddress=${account}`
                 );
                 const { totalSize } = response.data;
                 setTotalUploadedSize(totalSize);
@@ -274,7 +274,7 @@ function UploadPage() {
 
                 try {
                     await axios.post(
-                        "https://dapp.blockfile.xyz/api/upload",
+                        "https://app.blockfile.xyz/api/upload",
                         formData,
                         {
                             headers: {
@@ -391,7 +391,7 @@ function UploadPage() {
             // Digital Space tab
             try {
                 const response = await axios.post(
-                    "https://dapp.blockfile.xyz/api/delete-multiple",
+                    "https://app.blockfile.xyz/api/delete-multiple",
                     { fileIds },
                     {
                         headers: {
@@ -426,7 +426,7 @@ function UploadPage() {
     const deleteIpfsFiles = async (fileIds) => {
         try {
             const response = await axios.post(
-                "https://dapp.blockfile.xyz/api/deleteMultipleIpfsFiles",
+                "https://app.blockfile.xyz/api/deleteMultipleIpfsFiles",
                 { fileIds }
             );
             if (response.status === 200) {
@@ -460,7 +460,7 @@ function UploadPage() {
         const digitalSpaceFile = files.find((f) => f._id === fileId);
         if (digitalSpaceFile) {
             // Use the existing method to construct the download URL
-            fileUrl = `https://dapp.blockfile.xyz/download/${fileId}`;
+            fileUrl = `https://app.blockfile.xyz/download/${fileId}`;
         } else {
             // Since it's not a Digital Space file, check the IPFS files
             const ipfsFile = ipfsFiles.find((f) => f._id === fileId);
@@ -587,7 +587,7 @@ function UploadPage() {
 
                 try {
                     const response = await axios.post(
-                        "https://dapp.blockfile.xyz/api/uploadToIPFS", // Ensure URL is correct
+                        "https://app.blockfile.xyz/api/uploadToIPFS", // Ensure URL is correct
                         formData,
                         {
                             headers: {
