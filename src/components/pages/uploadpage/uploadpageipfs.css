@@ -108,13 +108,3 @@
 .whiteText {
     color: white !important;
 }
-.modal-shape {
-    clip-path: polygon(
-        0 0px,
-        22px 0,
-        100% 0,
-        100% calc(100% - 22px),
-        calc(100% - 22px) 100%,
-        0 100%
-    );
-}
