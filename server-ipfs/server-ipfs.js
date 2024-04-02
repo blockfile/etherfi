@@ -55,7 +55,7 @@ mongoose
     .then(() => console.log("MongoDB connected..."))
     .catch((err) => console.log(err));
 
-app.get("/api/totalSize", async (req, res) => {
+app.get("/new-api/totalSize", async (req, res) => {
     const { walletAddress } = req.query;
     try {
         const totalSize = await File.aggregate([
@@ -74,7 +74,7 @@ app.get("/api/totalSize", async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
-app.get("/api/ipfsFiles", async (req, res) => {
+app.get("/new-api/ipfsFiles", async (req, res) => {
     const { walletAddress } = req.query;
     if (!walletAddress) {
         return res.status(400).send("Wallet address is required");
@@ -89,7 +89,7 @@ app.get("/api/ipfsFiles", async (req, res) => {
     }
 });
 
-app.post("/api/deleteMultipleIpfsFiles", async (req, res) => {
+app.post("/new-api/deleteMultipleIpfsFiles", async (req, res) => {
     const { fileIds } = req.body; // Expecting an array of file IDs
 
     if (!fileIds || !Array.isArray(fileIds) || fileIds.length === 0) {
