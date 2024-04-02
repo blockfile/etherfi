@@ -55,7 +55,7 @@ mongoose
     .then(() => console.log("MongoDB connected..."))
     .catch((err) => console.log(err));
 
-app.get("/new-api/totalSize", async (req, res) => {
+app.get("/api/totalSize", async (req, res) => {
     const { walletAddress } = req.query;
     try {
         const totalSize = await File.aggregate([
@@ -135,7 +135,7 @@ app.post("/new-api/deleteMultipleIpfsFiles", async (req, res) => {
 });
 
 module.exports = router;
-app.post("/api/uploadToIPFS", upload.single("file"), async (req, res) => {
+app.post("/new-api/uploadToIPFS", upload.single("file"), async (req, res) => {
     if (!req.file) {
         return res.status(400).send("No file uploaded.");
     }
