@@ -105,7 +105,7 @@ function UploadPageIpfs() {
         if (!account) return;
         try {
             const response = await axios.get(
-                `http://localhost:3002/api/ipfsFiles?walletAddress=${account}`
+                `https://dapp.blockfile.xyz/api/ipfsFiles?walletAddress=${account}`
             );
             setIpfsFiles(response.data);
             console.log("IPFS Files fetched: ", response.data); // Debugging
@@ -236,7 +236,7 @@ function UploadPageIpfs() {
     const deleteIpfsFiles = async (fileIds) => {
         try {
             const response = await axios.post(
-                "http://localhost:3002/api/deleteMultipleIpfsFiles",
+                "https://dapp.blockfile.xyz/api/deleteMultipleIpfsFiles",
                 { fileIds }
             );
             if (response.status === 200) {
@@ -392,7 +392,7 @@ function UploadPageIpfs() {
 
                 try {
                     const response = await axios.post(
-                        "http://localhost:3002/api/uploadToIPFS", // Ensure URL is correct
+                        "https://dapp.blockfile.xyz/api/uploadToIPFS", // Ensure URL is correct
                         formData,
                         {
                             headers: {
