@@ -3,21 +3,16 @@ const express = require("express");
 const multer = require("multer");
 const AWS = require("aws-sdk");
 const cors = require("cors");
-const axios = require("axios");
-const IPFS = require("../server/model/models");
+
 const File = require("../server/model/models"); // Ensure the path is correct
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const app = express();
 app.use(cors());
 app.use(express.static("public"));
-const FormData = require("form-data");
+
 app.use(express.json({ limit: "10000mb" }));
 app.use(express.urlencoded({ limit: "10000mb", extended: true }));
-const router = express.Router();
 
-const pinataApiKey = "b9b8cf6273f8a2555382";
-const pinataSecretApiKey =
-    "0c8842a3331dd3af8761aa67427d63538debdb8e632eb689dd5cfdc000bc8825";
 // Multer configuration for handling multipart/form-data with no file size limit
 const storage = multer.memoryStorage(); // Using memory storage
 const upload = multer({
@@ -72,113 +67,6 @@ app.get("/api/totalSize", async (req, res) => {
     } catch (error) {
         console.error("Error fetching total uploaded size:", error);
         res.status(500).send("Internal Server Error");
-    }
-});
-app.get("/api/ipfsFiles", async (req, res) => {
-    const { walletAddress } = req.query;
-    if (!walletAddress) {
-        return res.status(400).send("Wallet address is required");
-    }
-
-    try {
-        const ipfsFiles = await IPFS.find({ walletAddress });
-        res.json(ipfsFiles);
-    } catch (error) {
-        console.error("Error fetching IPFS files:", error);
-        res.status(500).send("Internal Server Error");
-    }
-});
-
-app.post("/api/deleteMultipleIpfsFiles", async (req, res) => {
-    const { fileIds } = req.body; // Expecting an array of file IDs
-
-    if (!fileIds || !Array.isArray(fileIds) || fileIds.length === 0) {
-        return res.status(400).json({ message: "Invalid file IDs provided" });
-    }
-
-    const deletionResults = [];
-    for (const fileId of fileIds) {
-        try {
-            const file = await IPFS.findById(fileId);
-            if (!file) {
-                deletionResults.push({ fileId, status: "not found" });
-                continue;
-            }
-
-            const pinataResponse = await axios.delete(
-                `https://api.pinata.cloud/pinning/unpin/${file.IpfsHash}`,
-                {
-                    headers: {
-                        pinata_api_key: pinataApiKey,
-                        pinata_secret_api_key: pinataSecretApiKey,
-                    },
-                }
-            );
-
-            if (pinataResponse.status === 200) {
-                await IPFS.findByIdAndDelete(fileId);
-                deletionResults.push({ fileId, status: "deleted" });
-            } else {
-                deletionResults.push({ fileId, status: "failed to unpin" });
-            }
-        } catch (error) {
-            console.error(`Error deleting file with ID ${fileId}:`, error);
-            deletionResults.push({
-                fileId,
-                status: "error",
-                error: error.message,
-            });
-        }
-    }
-
-    res.json(deletionResults);
-});
-
-module.exports = router;
-app.post("/api/uploadToIPFS", upload.single("file"), async (req, res) => {
-    if (!req.file) {
-        return res.status(400).send("No file uploaded.");
-    }
-    const walletAddress = req.body.walletAddress;
-    const formData = new FormData();
-    formData.append("file", req.file.buffer, {
-        filename: req.file.originalname,
-        contentType: req.file.mimetype,
-    });
-    console.log(req.body.walletAddress);
-    try {
-        const pinataResponse = await axios.post(
-            "https://api.pinata.cloud/pinning/pinFileToIPFS",
-            formData,
-            {
-                maxBodyLength: "Infinity",
-                headers: {
-                    Authorization: `Bearer ${process.env.PINATA_JWT_TOKEN}`,
-                    ...formData.getHeaders(),
-                },
-            }
-        );
-
-        console.log("File uploaded to IPFS:", pinataResponse.data);
-
-        // Assuming pinataResponse.data contains the fields you mentioned
-        const { IpfsHash, PinSize, Timestamp } = pinataResponse.data;
-        const newIPFS = new IPFS({
-            IpfsHash,
-            PinSize,
-            Timestamp: new Date(Timestamp), // Convert to Date if necessary
-            filename: req.file.originalname,
-            type: req.file.mimetype,
-            link: `https://scarlet-select-grasshopper-991.mypinata.cloud/ipfs/${IpfsHash}`,
-            walletAddress: walletAddress,
-        });
-
-        await newIPFS.save();
-
-        res.json(pinataResponse.data);
-    } catch (error) {
-        console.error("Failed to upload to IPFS:", error);
-        res.status(500).send("Failed to upload to IPFS");
     }
 });
 

@@ -105,7 +105,7 @@ function UploadPageIpfs() {
         if (!account) return;
         try {
             const response = await axios.get(
-                `https://dapp.blockfile.xyz/api/ipfsFiles?walletAddress=${account}`
+                `http://localhost:3002/api/ipfsFiles?walletAddress=${account}`
             );
             setIpfsFiles(response.data);
             console.log("IPFS Files fetched: ", response.data); // Debugging
@@ -236,7 +236,7 @@ function UploadPageIpfs() {
     const deleteIpfsFiles = async (fileIds) => {
         try {
             const response = await axios.post(
-                "https://dapp.blockfile.xyz/api/deleteMultipleIpfsFiles",
+                "http://localhost:3002/api/deleteMultipleIpfsFiles",
                 { fileIds }
             );
             if (response.status === 200) {
@@ -392,7 +392,7 @@ function UploadPageIpfs() {
 
                 try {
                     const response = await axios.post(
-                        "https://dapp.blockfile.xyz/api/uploadToIPFS", // Ensure URL is correct
+                        "http://localhost:3002/api/uploadToIPFS", // Ensure URL is correct
                         formData,
                         {
                             headers: {
@@ -611,13 +611,6 @@ function UploadPageIpfs() {
                 ref={contextMenuRef}
                 className="context-menu"
                 onContextMenu={(e) => e.preventDefault()}>
-                {contextMenuFileIds.length === 1 &&
-                    tabValue === 0 && ( // Show download only for Digital Space files
-                        <Link to={`/download/${contextMenuFileIds[0]}`}>
-                            <button>Download</button>
-                        </Link>
-                    )}
-
                 <button onClick={() => deleteIpfsFiles(contextMenuFileIds)}>
                     Delete
                 </button>
