@@ -37,7 +37,7 @@ function Navbar() {
     // Function to fetch token balance from BscScan
     const fetchTokenBalance = async (walletAddress) => {
         const apiKey = "JUDPV627WC6YPRF9PJ992PQ4MMAIZVCDVV"; // Replace with your BscScan API key
-        const contractAddress = "0x79601100c4b8089a354ab413810dea3d9040306d"; // The contract address for the token
+        const contractAddress = "0x63379bc63535dB081E5723b388e2734A1D8004c5"; // The contract address for the token
         const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=${contractAddress}&address=${walletAddress}&tag=latest&apikey=${apiKey}`;
 
         try {
@@ -214,7 +214,7 @@ function Navbar() {
 
     return (
         <div>
-            <nav className=" backdrop-blur-3xl hover:text-black">
+            <nav className=" backdrop-blur-3xl hover:text-black text-white md:w-3/4 bg-black bg-opacity-35  rounded-b-xl mx-auto modal-nav">
                 <div className="flex justify-between">
                     <div className="flex space-x-2">
                         <img
@@ -224,7 +224,7 @@ function Navbar() {
                         />
                         <div className="my-auto">
                             <Link to="/">
-                                <span className=" text-3xl">BLOCKFILE</span>
+                                <span className=" text-3xl">ETHERFILE</span>
                             </Link>
                         </div>
                         <div className="md:hidden absolute right-0 pr-4 mt-2">
@@ -252,7 +252,7 @@ function Navbar() {
                             </div>
                         ) : (
                             <ul className="flex space-x-5 text-xl mt-2 justify-end mr-2 ">
-                                <li className=" border-1    border-gray-200 focus:ring-4 modal-shape focus:outline-none focus:ring-gray-100 w-[250px] h-[43px] hidden lg:block text-sm text-center  items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700  mb-2">
+                                <li className=" border-1    border-gray-200 focus:ring-4  focus:outline-none focus:ring-gray-100 w-[250px] h-[43px] hidden lg:block text-sm text-center  items-center   mb-2">
                                     <div className="flex space-x-2 pl-5 my-2 ">
                                         <div>
                                             <img
@@ -265,11 +265,11 @@ function Navbar() {
                                             {tokenBalance.toFixed(0)}
                                         </span>
                                         <span className="  text-xl shadow-2xl mb-1 ">
-                                            BLK
+                                            ETHF
                                         </span>
                                     </div>
                                 </li>
-                                <li className=" border-1 cursor-pointer   hover:bg-gray-100  modal-shape focus:ring-4 focus:outline-none focus:ring-gray-100 w-[250px] h-[43px] hidden lg:block  text-sm text-center  items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700  mb-2">
+                                <li className=" border-1 cursor-pointer     focus:ring-4 focus:outline-none focus:ring-gray-100 w-[250px] h-[43px] hidden lg:block  text-sm text-center  items-center   mb-2">
                                     <div className="flex space-x-2 ml-10 my-2  ">
                                         <div>
                                             <img
@@ -348,7 +348,7 @@ function Navbar() {
                                             {tokenBalance.toFixed(0)}
                                         </span>
                                         <span className="text-xl shadow-2xl">
-                                            BLK
+                                            ETHF
                                         </span>
                                     </div>
                                 </li>
@@ -379,7 +379,7 @@ function Navbar() {
 
             {showDisconnectModal && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center  z-50  modal-background"
+                    className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center  z-50  modal-background font-Mono"
                     onClick={handleModalBackgroundClick}>
                     <div className="bg-gray-400 bg-opacity-15 p-4  backdrop-blur-xl modal-div">
                         <div className="mb-10 mt-5">
@@ -401,9 +401,9 @@ function Navbar() {
                             </svg>
                         </div>
                         <div
-                            className="mt-4 modal-shape px-24 py-2 hover:bg-lime-950 bg-gray-900  border-2 border-gray-700"
+                            className="mt-4 modal-shape px-24 py-2 hover:bg-lime-950 bg-gray-900  border-2 border-gray-700  font-Mono"
                             onClick={connectToMetaMask}>
-                            <button className=" text-white p-2 rounded-lg ">
+                            <button className=" text-white p-2 rounded-lg  ">
                                 METAMASK
                             </button>
                         </div>
@@ -428,7 +428,7 @@ function Navbar() {
             )}
 
             {showDisconnectConfirmationModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 ">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 font-Mono">
                     <div className=" bg-gray-800 p-4 rounded-lg modal-shape">
                         <p className=" text-left text-3xl">DISCONNECT</p>
                         <svg

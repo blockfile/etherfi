@@ -3,7 +3,7 @@ const express = require("express");
 const multer = require("multer");
 const AWS = require("aws-sdk");
 const cors = require("cors");
-
+const bot = require("./telegramBot"); // Import the bot setup
 const File = require("../server/model/models"); // Ensure the path is correct
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const app = express();

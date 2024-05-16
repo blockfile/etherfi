@@ -45,7 +45,7 @@ function DownloadPage() {
 
     return (
         <div>
-            <div className=" bg text-white font-anta h-screen overflow-hidden">
+            <div className=" bg-black text-white font-anta h-screen overflow-hidden">
                 <Navbar />
 
                 <div className="flex justify-center items-center h-full  pb-24 overflow-hidden ">

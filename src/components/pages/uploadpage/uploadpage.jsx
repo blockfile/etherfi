@@ -3,13 +3,11 @@ import Navbar from "../../navbar/navbar";
 import axios from "axios";
 import Footer from "../../Footer/Footer";
 import "./uploadpage.css";
-import { FaFolderPlus } from "react-icons/fa";
+
 import { FiFilePlus } from "react-icons/fi";
 import TokenContext from "../../assets/TokenContext";
 import { Link } from "react-router-dom";
-import { SiIpfs } from "react-icons/si";
 
-import { GrStorage } from "react-icons/gr";
 import {
     FaFilePdf,
     FaFileImage,
@@ -81,8 +79,6 @@ function UploadPage() {
     const [contextMenuFileIds, setContextMenuFileIds] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const fileInputRef = useRef(null);
-    const [isHoveredStorage, setIsHoveredStorage] = useState(false);
-    const [isHoveredIpfs, setIsHoveredIpfs] = useState(false);
 
     const [totalUploadedSize, setTotalUploadedSize] = useState(0);
     const [uploadQueue, setUploadQueue] = useState([]);
@@ -90,6 +86,50 @@ function UploadPage() {
     const [maxUploadSize, setMaxUploadSize] = useState(5 * 1024 * 1024 * 1024); // Default to 5GB
     const [windowSize, setWindowSize] = useState(window.innerWidth);
     const isWalletConnected = account && window.ethereum;
+
+    const [currentCharIndex, setCurrentCharIndex] = useState(0);
+    const [messageIndex, setMessageIndex] = useState(0);
+    const [greetings, setGreetings] = useState([]);
+    const [startTyping, setStartTyping] = useState(false);
+
+    const messages = ["Please select file you want to upload."];
+    const etherfile = "//ETHERBOT: ";
+
+    useEffect(() => {
+        let timer;
+        if (startTyping) {
+            if (messageIndex < messages.length) {
+                const currentMessage = messages[messageIndex];
+                if (currentCharIndex < currentMessage.length) {
+                    timer = setTimeout(() => {
+                        setGreetings((prevGreetings) => {
+                            // Create a new array or append characters as before
+                            const updatedGreetings = [...prevGreetings];
+                            if (prevGreetings.length === messageIndex) {
+                                updatedGreetings.push(
+                                    currentMessage[currentCharIndex]
+                                );
+                            } else {
+                                updatedGreetings[messageIndex] +=
+                                    currentMessage[currentCharIndex];
+                            }
+                            return updatedGreetings;
+                        });
+                        setCurrentCharIndex(currentCharIndex + 1);
+                    }, 40);
+                } else if (messageIndex < messages.length - 1) {
+                    setCurrentCharIndex(0);
+                    setMessageIndex(messageIndex + 1);
+                } else {
+                    // Typing completed for all messages
+                    setStartTyping(false); // Reset to allow re-triggering
+                    setCurrentCharIndex(0);
+                    setMessageIndex(0);
+                }
+            }
+        }
+        return () => clearTimeout(timer);
+    }, [currentCharIndex, messageIndex, messages, startTyping]);
 
     useEffect(() => {
         console.log("Updated tokenBalance: ", tokenBalance); // For debugging
@@ -180,24 +220,35 @@ function UploadPage() {
         const selectedFiles = Array.from(event.target.files);
         const newQueue = selectedFiles.map((file) => {
             const { token, cancel } = axios.CancelToken.source();
+            const initialMessage = `//ETHERBOT: ${file.name} /`;
+            setGreetings((prev) => [...prev, initialMessage]);
             return {
                 file,
                 progress: 0,
                 status: "queued",
-                cancelToken: token, // Add the token here
-                cancel, // Add the cancel function here
+                cancelToken: token,
+                cancel,
+                messageIndex: greetings.length, // store the index of the message
             };
         });
         setUploadQueue((prevQueue) => [...prevQueue, ...newQueue]);
     };
 
     const updateFileProgress = (index, progress) => {
-        setUploadQueue((currentQueue) =>
-            currentQueue.map((file, i) =>
-                i === index ? { ...file, progress } : file
-            )
-        );
+        const newQueue = [...uploadQueue];
+        const fileData = newQueue[index];
+        fileData.progress = progress;
+
+        const newGreetings = [...greetings];
+        const slashes = "/".repeat(progress / 10); // One slash for each 10% completed
+        newGreetings[
+            fileData.messageIndex
+        ] = `//ETHERBOT: ${fileData.file.name} ${slashes}`;
+
+        setUploadQueue(newQueue);
+        setGreetings(newGreetings);
     };
+
     const updateTotalUploadedSize = () => {
         const totalSize = uploadQueue.reduce((acc, file) => {
             return acc + (file.status === "done" ? file.file.size : 0);
@@ -442,58 +493,43 @@ function UploadPage() {
     const closeModal = () => {
         // Check if all files are done uploading
         const allDone = uploadQueue.every((file) => file.status === "done");
+
+        // Reset states when modal is closed
+        setGreetings([]);
+        setCurrentCharIndex(0);
+        setMessageIndex(0);
+        setStartTyping(false); // If you are using this to control typing
+
         setIsModalOpen(false);
-        fetchFiles(); // Fetch latest files list
-        setUploadQueue([]);
-        let shouldCloseModal = true; // Assume we can close the modal
-
-        // If not all files are done uploading and there are files in the upload queue, ask the user for confirmation
-        if (!allDone && uploadQueue.length > 0) {
-            shouldCloseModal = window.confirm(
-                "Do you want to clear your selection?"
-            );
-        }
-
-        if (shouldCloseModal) {
-            setIsModalOpen(false); // Close the modal
+        if (allDone || window.confirm("Do you want to clear your selection?")) {
             setUploadQueue([]); // Clear the upload queue
         }
-        // If the user cancels and there are files in the queue, the modal remains open
+        fetchFiles(); // Fetch latest files list after modal close
     };
 
     const handleUploadButtonClick = () => {
         // Toggle the state to show/hide the modal
         setIsModalOpen(!isModalOpen);
+        setStartTyping(true);
     };
     const handleIconClick = () => {
-        // When the icon is clicked, trigger a click on the file input
-        fileInputRef.current.click();
+        fileInputRef.current.click(); // Triggers the file input click
+
+        // Check if the "Adding Files..." message is already present to avoid duplication
+        const addingFilesMessage = "Adding Files...";
+        if (!greetings.includes(addingFilesMessage)) {
+            setGreetings((prevGreetings) => [
+                ...prevGreetings,
+                addingFilesMessage,
+            ]);
+        }
+
+        // Optionally, manage typing animation reset here
+        setStartTyping(true);
+        setCurrentCharIndex(0);
+        setMessageIndex(greetings.length); // Update message index to handle new messages correctly
     };
-    // const handleCreateFolder = async () => {
-    //     if (!newFolderName) {
-    //         alert("Please enter a folder name!");
-    //         return;
-    //     }
 
-    //     try {
-    //         const response = await axios.post(
-    //             "https://dapp.blockfile.xyz/api/create-folder",
-    //             {
-    //                 folderName: newFolderName,
-    //                 walletAddress: account, // Assuming you're storing the wallet address in state
-    //             }
-    //         );
-
-    //         // Update your local state to reflect the new folder
-    //         const newFolder = response.data.dbData;
-    //         setFiles((prevFiles) => [...prevFiles, newFolder]);
-    //         setNewFolderName(""); // Clear the input field
-    //         alert("Folder created successfully!");
-    //     } catch (error) {
-    //         console.error("Error creating folder:", error);
-    //         alert("Error creating folder.");
-    //     }
-    // };
     function formatFileSize(bytes) {
         if (bytes < 1024) return bytes + " Bytes";
         else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
@@ -514,7 +550,6 @@ function UploadPage() {
         (totalUploadedSize / maxUploadSize) * 100
     ).toFixed(2);
 
-    const iconSize = windowSize >= 768 ? 200 : 50;
     useEffect(() => {
         function handleResize() {
             setWindowSize(window.innerWidth);
@@ -526,110 +561,19 @@ function UploadPage() {
 
     return (
         <div>
-            <div className="bg-gray-900 text-white h-screen font-anta bg  ">
+            <div className=" bg2 text-white h-screen font-anta   ">
                 <Navbar />
                 <div className="flex">
-                    {/* <div className="w-1/4 p-4 border-r border-gray-700 my-3">
-                    <h2 className="text-lg font-semibold mb-4">My Folders</h2>
-                    <div className="mb-4 space-y-4">
-                        <div>
-                            <input
-                                type="text"
-                                placeholder=" New folder name"
-                                value={newFolderName}
-                                onChange={(e) =>
-                                    setNewFolderName(e.target.value)
-                                }
-                                className="text-input text-black rounded-md text-center"
-                            />
-                        </div>
-                        <div>
-                            <button
-                                onClick={handleCreateFolder}
-                                className="create-folder-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Create Folder
-                            </button>
-                        </div>
-                    </div>
-                    <div>
-                        <p>You don't have any folders</p>
-                    </div>
-                </div> */}
                     <div className="w-full p-4">
                         <div className=" md:flex justify-between mx-6 my-2 ">
                             <div className="mt-3  ">
-                                <span className="text-lg font-semibold  ">
+                                <span className="text-lg font-Mono ">
                                     My Files
                                 </span>
                             </div>
-                            <Link to="/uploadpage">
-                                <div
-                                    className="border-2 flex justify-center sm:my-2 rounded-xl hover:shadow-green-500/50 hover:shadow-lg hover:border-green-500 transition duration-300 ease-in-out"
-                                    onMouseEnter={() =>
-                                        setIsHoveredStorage(true)
-                                    }
-                                    onMouseLeave={() =>
-                                        setIsHoveredStorage(false)
-                                    }>
-                                    <div className="ml-2 my-2">
-                                        <GrStorage
-                                            size={24}
-                                            style={{
-                                                color: isHoveredStorage
-                                                    ? "green"
-                                                    : "currentColor",
-                                                transition:
-                                                    "color 300ms ease-in-out", // Smooth transition for color
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="mt-2">
-                                        <span
-                                            className={`mx-2 my-2 animate-pulse ${
-                                                isHoveredStorage
-                                                    ? "text-green-500"
-                                                    : ""
-                                            } transition duration-300 ease-in-out`} // Apply transition to the span as well
-                                        >
-                                            UPLOAD WEB SPACE
-                                        </span>
-                                    </div>
-                                </div>
-                            </Link>
-                            <Link to="/uploadpageipfs">
-                                <div
-                                    className="border-2 flex justify-center sm:my-2 rounded-xl hover:shadow-green-500/50 hover:shadow-lg hover:border-green-500 transition duration-300 ease-in-out"
-                                    onMouseEnter={() => setIsHoveredIpfs(true)}
-                                    onMouseLeave={() =>
-                                        setIsHoveredIpfs(false)
-                                    }>
-                                    <div className="ml-2 my-2">
-                                        <SiIpfs
-                                            size={24}
-                                            style={{
-                                                color: isHoveredIpfs
-                                                    ? "green"
-                                                    : "currentColor",
-                                                transition:
-                                                    "color 300ms ease-in-out", // Ensure smooth color transition
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="mt-2">
-                                        <span
-                                            className={`mx-2 my-2 animate-pulse ${
-                                                isHoveredIpfs
-                                                    ? "text-green-500"
-                                                    : ""
-                                            } transition duration-300 ease-in-out`} // Smooth transition for the text color
-                                        >
-                                            UPLOAD IPFS
-                                        </span>
-                                    </div>
-                                </div>
-                            </Link>
+
                             <div className="md:flex sm:space-y-4 space-x-4">
-                                <div className="">
+                                <div className=" font-Mono">
                                     <div className="w-full bg-gray-300 rounded-full h-2.5 dark:bg-gray-700 mt-2">
                                         <div
                                             className="bg-blue-600 h-2.5 rounded-full"
@@ -637,7 +581,7 @@ function UploadPage() {
                                                 width: `${uploadPercentage}%`,
                                             }}></div>
                                     </div>
-                                    <div className="text-sm sm:text-center md:text-right mt-1">
+                                    <div className="text-sm sm:text-center md:text-right mt-1 font-Mono">
                                         {uploadPercentage}% (
                                         {(
                                             totalUploadedSize /
@@ -651,7 +595,7 @@ function UploadPage() {
                                         MB)
                                     </div>
                                 </div>
-                                <div className="">
+                                <div className=" font-Mono">
                                     <button
                                         onClick={handleUploadButtonClick}
                                         className={`${
@@ -665,12 +609,12 @@ function UploadPage() {
                                 </div>
                             </div>
                         </div>
-                        <div className="flex  mx-6 my-2 space-x-4 ">
+                        <div className="flex  mx-6 my-2 space-x-4  font-Mono">
                             <div className=" ">
                                 <div className=" ">
                                     <input
                                         type="checkbox"
-                                        className="form-checkbox "
+                                        className="form-checkbox accent-green-500 "
                                         onChange={handleSelectAll}
                                         checked={
                                             files.length > 0 &&
@@ -683,105 +627,115 @@ function UploadPage() {
                             </div>
                         </div>
                         {files.length === 0 ? (
-                            <div className="text-center">
+                            <div className="text-center text-5xl">
                                 {isWalletConnected
                                     ? "This folder is empty"
                                     : "Please connect your MetaMask wallet first."}
                             </div>
                         ) : (
-                            <div className="files-table-container md:max-h-[750px] overflow-y-auto  sm:max-h-[600px]">
-                                <table className="min-w-full  ">
-                                    <tbody>
-                                        {Array.isArray(files) &&
-                                            files.map((file, idx) => (
-                                                <tr
-                                                    key={file.fileId}
-                                                    className={`border-b hover:bg-slate-700 border-gray-700 ${
-                                                        selectedFiles.has(
-                                                            file._id
-                                                        )
-                                                            ? "bg-blue-500" // Highlight selected rows
-                                                            : "bg-transparent"
-                                                    }`}
-                                                    onClick={() =>
-                                                        toggleFileSelection(
-                                                            file._id
-                                                        )
-                                                    }
-                                                    onContextMenu={(e) =>
-                                                        handleContextMenu(
-                                                            e,
-                                                            file._id
-                                                        )
-                                                    }>
-                                                    <td className="px-6 text-sm font-medium text-left ">
-                                                        <div className="flex items-center space-x-3 ">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={selectedFiles.has(
-                                                                    file._id
-                                                                )}
-                                                                onChange={() =>
-                                                                    toggleFileSelection(
+                            <div className="files-table-container md:max-h-[750px] overflow-y-auto sm:max-h-[600px] bg-black   font-Mono rounded-t-xl">
+                                <div className=" bg-slate-500 flex justify-center space-x-4">
+                                    <span className="my-auto">
+                                        //ETHERFILE.EXE
+                                    </span>
+                                    <div className="animate-spin">
+                                        <span>/</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <table className="min-w-full table-command-line ">
+                                        <tbody>
+                                            {Array.isArray(files) &&
+                                                files.map((file, idx) => (
+                                                    <tr
+                                                        key={file.fileId}
+                                                        className={` hover:bg-slate-700  border-gray-700 ${
+                                                            selectedFiles.has(
+                                                                file._id
+                                                            )
+                                                                ? "bg-blue-500"
+                                                                : "bg-transparent"
+                                                        }`}
+                                                        onClick={() =>
+                                                            toggleFileSelection(
+                                                                file._id
+                                                            )
+                                                        }
+                                                        onContextMenu={(e) =>
+                                                            handleContextMenu(
+                                                                e,
+                                                                file._id
+                                                            )
+                                                        }>
+                                                        <td className="px-6 text-sm font-medium text-left table-cell ">
+                                                            <div className="flex items-center space-x-3 ">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={selectedFiles.has(
                                                                         file._id
-                                                                    )
-                                                                }
-                                                                className="form-checkbox  text-blue-600"
-                                                            />
-                                                            {(() => {
-                                                                const fileExtension =
-                                                                    file.filename
-                                                                        .split(
-                                                                            "."
-                                                                        )
-                                                                        .pop()
-                                                                        .toLowerCase();
-                                                                const IconComponent =
-                                                                    fileTypeIcons[
-                                                                        fileExtension
-                                                                    ] || (
-                                                                        <FaFileAlt />
-                                                                    ); // Default to FaFileAlt if extension not found
-                                                                return IconComponent; // Use the IconComponent directly
-                                                            })()}
-
-                                                            {/* Always visible on medium screens and up */}
-                                                            <div>
-                                                                <span className="hidden sm:block truncate max-w-xs">
-                                                                    {
-                                                                        file.filename
-                                                                    }
-                                                                </span>
-                                                                {/* Visible only on small screens */}
-                                                                <span className="block sm:hidden truncate max-w-xs">
-                                                                    {file
-                                                                        .filename
-                                                                        .length >
-                                                                    6
-                                                                        ? `${file.filename.substring(
-                                                                              0,
-                                                                              6
-                                                                          )}…`
-                                                                        : file.filename}
-                                                                </span>
-                                                                <span className="file-size text-xs text-gray-400 ">
-                                                                    {formatFileSize(
-                                                                        file.size
                                                                     )}
-                                                                </span>
+                                                                    onChange={() =>
+                                                                        toggleFileSelection(
+                                                                            file._id
+                                                                        )
+                                                                    }
+                                                                    className="form-checkbox input-checkbox"
+                                                                />
+                                                                {(() => {
+                                                                    const fileExtension =
+                                                                        file.filename
+                                                                            .split(
+                                                                                "."
+                                                                            )
+                                                                            .pop()
+                                                                            .toLowerCase();
+                                                                    const IconComponent =
+                                                                        fileTypeIcons[
+                                                                            fileExtension
+                                                                        ] || (
+                                                                            <FaFileAlt />
+                                                                        );
+                                                                    return IconComponent;
+                                                                })()}
+                                                                <div className="">
+                                                                    <span className="hidden sm:block truncate max-w-xs text-green-500">
+                                                                        //
+                                                                        {
+                                                                            file.filename
+                                                                        }
+                                                                    </span>
+                                                                    <span className="block sm:hidden truncate max-w-xs">
+                                                                        {file
+                                                                            .filename
+                                                                            .length >
+                                                                        6
+                                                                            ? `//${file.filename.substring(
+                                                                                  0,
+                                                                                  6
+                                                                              )}…`
+                                                                            : `//${file.filename}`}
+                                                                    </span>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="text-xs text-gray-500"></td>
-                                                    <td className="text-xs text-gray-500">
-                                                        {new Date(
-                                                            file.createdAt
-                                                        ).toLocaleString()}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                    </tbody>
-                                </table>
+                                                        </td>
+                                                        <td className="text-xs text-gray-500"></td>
+                                                        <td className="text-xs text-gray-500 space-x-6 table-cell">
+                                                            <span className="file-size text-xs text-gray-400 ">
+                                                                {formatFileSize(
+                                                                    file.size
+                                                                )}
+                                                            </span>
+                                                            <span>
+                                                                {new Date(
+                                                                    file.createdAt
+                                                                ).toLocaleString()}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -810,7 +764,7 @@ function UploadPage() {
                 </div>
                 {isModalOpen && (
                     <div className="fixed inset-0 backdrop-blur-sm   z-50 flex justify-center items-center ">
-                        <div className=" bg-modal p-4 rounded-2xl shadow-lg ">
+                        <div className=" bg-black p-4 rounded-2xl shadow-lg ">
                             <div>
                                 <button
                                     onClick={closeModal}
@@ -818,8 +772,8 @@ function UploadPage() {
                                     &times;
                                 </button>
                             </div>
-                            <h3 className="text-lg font-bold">Upload Files</h3>
-                            <div className=" overflow-y-auto max-h-[600px] files-table-container ">
+
+                            <div className=" overflow-y-auto max-h-[600px] files-table-container  ">
                                 {uploadQueue.length > 0 ? (
                                     <div className="sm:mx-2 sm:my-2 md:mx-24 md:my-24">
                                         {uploadQueue.map((fileData, index) => (
@@ -874,18 +828,28 @@ function UploadPage() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="mx-auto border-2 border-dashed pl-5 my-5">
-                                        <div
-                                            className="md:mx-24 md:my-24 sm:mx-20 sm:my-20"
-                                            onClick={handleIconClick}>
-                                            <FaFolderPlus
-                                                className="cursor-pointer mx-auto"
-                                                size={iconSize}
-                                            />
-
-                                            <p className="text-center mt-2">
-                                                Add Files
-                                            </p>
+                                    <div className="flex-grow flex items-center justify-center">
+                                        <div className="lg:w-[500px] lg:h-[500px] md:w-[400px] md:h-[400px] sm:w-[300px] sm:h-[300px] bg-black flex flex-col justify-between rounded-b-lg mx-2 bg-opacity-40 rounded-t-lg">
+                                            <div className="  py-1 font-Mono flex justify-center space-x-4 rounded-t-xl">
+                                                <span>//ETHERFILE.EXE</span>
+                                                <div className="animate-spin">
+                                                    <span>/</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex-grow text-white mx-2 mt-2 text-justify overflow-auto">
+                                                {greetings.map(
+                                                    (greeting, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="font-Mono">
+                                                            <span className="text-green-500">
+                                                                {etherfile}
+                                                            </span>
+                                                            {greeting}
+                                                        </div>
+                                                    )
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 )}

@@ -5,7 +5,7 @@ import UploadPage from "./components/pages/uploadpage/uploadpage";
 import { useRoutes } from "react-router-dom";
 import TokenContext from "../src/components/assets/TokenContext";
 import DownloadPage from "./components/pages/downloadpage/downloadpage";
-import UploadPageIpfs from "./components/pages/uploadpage/uploadpageipfs";
+
 function App() {
     const [tokenBalance, setTokenBalance] = useState(0);
     let element = useRoutes([
@@ -21,13 +21,9 @@ function App() {
             path: "/download/:id",
             element: <DownloadPage />,
         },
-        {
-            path: "/uploadpageipfs",
-            element: <UploadPageIpfs />,
-        },
     ]);
     return (
-        <div className="App">
+        <div className="App bg-black">
             {" "}
             <TokenContext.Provider value={{ tokenBalance, setTokenBalance }}>
                 {element}{" "}

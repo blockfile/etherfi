@@ -24,7 +24,7 @@ nav .profile-area {
     gap: 4rem;
 }
 nav:hover {
-    background-color: #9bcf53; /* This is the new background color */
+    background-color: #ad28d6; /* This is the new background color */
     transition: background-color 0.5s ease; /* Smooth transition for background color */
 }
 nav .profile-area .theme-btn {
@@ -219,6 +219,20 @@ nav .profile-area button {
         0 100%
     );
 }
+.modal-nav {
+    clip-path: polygon(
+        0 0,
+        /* Start at the top left corner (unclipped) */ 100% 0,
+        /* Go straight to the top right corner */ 100% calc(100% - 22px),
+        /* Move down to 22px above the bottom right corner */ calc(100% - 22px)
+            100%,
+        /* Move left to 22px left of the bottom right corner */ 22px 100%,
+        /* Move horizontally to 22px right of the bottom left corner */ 0
+            calc(100% - 22px)
+            /* Move up to 22px below the top left corner, completing the path */
+    );
+}
+
 .ModalBox_box__divider__4L1XL {
     stroke: #bcbcbc; /* This sets the color of the line */
     /* Add additional styling as needed */

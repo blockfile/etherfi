@@ -1,19 +1,21 @@
 .font-anta {
     font-family: "Anta";
 }
-.bg {
-    background-image: linear-gradient(
-        to bottom,
-        #2a3024,
-        #1c2824,
-        #162021,
-        #141719,
-        #0d0d0d
+.bg2 {
+    background-image: radial-gradient(
+        circle,
+        #46034a,
+        #3c0432,
+        #2d071f,
+        #1d0511,
+        #000000
     );
     position: absolute;
     z-index: 0;
     width: 100%;
     height: 100%;
+    background-repeat: no-repeat;
+    background-color: black;
 }
 .bg-modal {
     background-image: linear-gradient(
@@ -117,4 +119,31 @@
         calc(100% - 22px) 100%,
         0 100%
     );
+}
+/* TailwindCSS utilities can be used as classes directly in your JSX */
+.table-command-line {
+    color: #fff; /* White text color for visibility */
+    background-color: #000000; /* Dark background for the table */
+    border-color: #555; /* Lighter border color for subtle contrast */
+}
+
+.input-checkbox {
+    accent-color: #0f0; /* Green color for checkboxes */
+}
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spin {
+    display: inline-block;
+    animation: spin 0.5s linear infinite;
+}
+
+.stop-spin {
+    animation: none;
 }

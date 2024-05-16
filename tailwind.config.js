@@ -12,7 +12,8 @@ module.exports = {
         extend: {
             fontFamily: {
                 // Define your custom font names and their font-family values
-                Anta: ['"Anta"'], // Example custom font
+                Anta: ['"Anta"'],
+                Mono: ["Kode Mono"], // Example custom font
                 // Add more custom fonts as needed
             },
         },
