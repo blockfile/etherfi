@@ -5,12 +5,14 @@ import Footer from "../../Footer/Footer";
 import Loading from "../../assets/video/loading.mp4";
 import { CSSTransition } from "react-transition-group";
 
-import "./main.css";
+import "./main.css"; // Import the CSS file
+
 function Main() {
     const [greetings, setGreetings] = useState([]);
     const [inputValue, setInputValue] = useState("");
     const [currentCharIndex, setCurrentCharIndex] = useState(0);
     const [messageIndex, setMessageIndex] = useState(0);
+    const [showAbout, setShowAbout] = useState(false);
     const navigate = useNavigate();
     const messages = [
         " Welcome to ETHERFILE!",
@@ -27,14 +29,12 @@ function Main() {
                 const currentMessage = messages[messageIndex];
                 if (currentCharIndex < currentMessage.length) {
                     setGreetings((prevGreetings) => {
-                        // Create a new array only if this is the first char of a new message
                         if (prevGreetings.length === messageIndex) {
                             return [
                                 ...prevGreetings,
                                 currentMessage[currentCharIndex],
                             ];
                         } else {
-                            // Otherwise, append the next character to the last message
                             const updatedGreetings = [...prevGreetings];
                             updatedGreetings[messageIndex] +=
                                 currentMessage[currentCharIndex];
@@ -49,7 +49,7 @@ function Main() {
             }
         }, 50);
 
-        return () => clearTimeout(timer); // Clean up the timeout to prevent memory leaks or state updates on unmounted components
+        return () => clearTimeout(timer);
     }, [currentCharIndex, messageIndex, messages]);
 
     const handleInputKeyPress = (event) => {
@@ -63,7 +63,7 @@ function Main() {
                 setTimeout(() => {
                     setShowLoading(false);
                     navigate("/");
-                }, 5000); // Display loading for 5 seconds then navigate
+                }, 5000);
             } else if (inputValue === "2") {
                 setGreetings((prev) => [
                     ...prev,
@@ -73,45 +73,48 @@ function Main() {
                 setTimeout(() => {
                     setShowLoading(false);
                     navigate("/uploadpage");
-                }, 5000); // Change '/dapp' to your actual route
+                }, 5000);
             } else {
                 setGreetings((prev) => [...prev, "Invalid command."]);
             }
-            setInputValue(""); // Clear input field after handling
+            setInputValue("");
         }
     };
 
     return (
         <div className="bg3 sm:overflow-hidden h-screen flex flex-col">
             <Navbar />
-            <div className="flex-grow flex items-center justify-center">
-                <div className="w-[500px] h-[500px] bg-black flex flex-col justify-between rounded-b-lg mx-2 bg-opacity-40 rounded-t-lg">
-                    <div className=" bg-slate-500 py-1 font-Mono flex justify-center space-x-4 rounded-t-xl">
-                        <span>//ETHERFILE.EXE</span>
-                        <div className="animate-spin">
-                            <span>/</span>
-                        </div>
-                    </div>
-                    <div className="flex-grow text-white mx-2 mt-2 text-justify overflow-auto">
-                        {greetings.map((greeting, index) => (
-                            <div key={index} className="font-Mono">
-                                <span className="text-green-500">
-                                    {etherfile}
-                                </span>
-                                {greeting}
+            <div className="flex-grow flex items-center justify-center flip-container">
+                <div className={`flipper ${showAbout ? "flip" : ""}`}>
+                    <div className="front w-[500px] h-[500px] bg-black flex flex-col justify-between rounded-b-lg mx-2 bg-opacity-40 rounded-t-lg">
+                        <div className=" bg-slate-500 py-1 font-Mono flex justify-center space-x-4 rounded-t-xl">
+                            <span>//ETHERFILE.EXE</span>
+                            <div className="animate-spin">
+                                <span>/</span>
                             </div>
-                        ))}
+                        </div>
+                        <div className="flex-grow text-white mx-2 mt-2 text-justify overflow-auto">
+                            {greetings.map((greeting, index) => (
+                                <div key={index} className="font-Mono">
+                                    <span className="text-green-500">
+                                        {etherfile}
+                                    </span>
+                                    {greeting}
+                                </div>
+                            ))}
+                        </div>
+                        <input
+                            className="w-full h-8 bg-black bg-opacity-40 text-white pl-2 outline-none border-none caret-white font-Mono rounded-b-lg"
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyPress={handleInputKeyPress}
+                            placeholder="// TYPE YOUR COMMAND HERE.."
+                        />
                     </div>
-                    <input
-                        className="w-full h-8 bg-black bg-opacity-40 text-white pl-2 outline-none border-none caret-white font-Mono rounded-b-lg"
-                        type="text"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyPress={handleInputKeyPress}
-                        placeholder="// TYPE YOUR COMMAND HERE.."
-                    />
                 </div>
             </div>
+
             <CSSTransition
                 in={showLoading}
                 timeout={300}

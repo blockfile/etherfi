@@ -26,7 +26,7 @@ const upload = multer({
 
 const corsOptions = {
     origin: [
-        "https://dapp.blockfile.xyz",
+        "https://etherfile-ai.com",
         "http://localhost:3000",
         "http://188.166.227.116:3000",
     ], // Add your production and development URLs here

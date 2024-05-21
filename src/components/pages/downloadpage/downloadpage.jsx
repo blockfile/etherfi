@@ -14,7 +14,7 @@ function DownloadPage() {
         const fetchFile = async () => {
             try {
                 const response = await axios.get(
-                    `https://dapp.blockfile.xyz/api/files/${id}`
+                    `https://etherfile-ai.com/api/files/${id}`
                 );
                 if (response.data) {
                     const formattedSize = (
