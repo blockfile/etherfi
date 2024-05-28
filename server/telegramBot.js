@@ -40,9 +40,9 @@ mongoose
 const bannerUrl = "../src/components/assets/Images/bannereth.png"; // Replace with your banner image URL
 
 const fetchTokenBalance = async (walletAddress) => {
-    const apiKey = "JUDPV627WC6YPRF9PJ992PQ4MMAIZVCDVV"; // Replace with your BscScan API key
-    const contractAddress = "0x63379bc63535dB081E5723b388e2734A1D8004c5"; // The contract address for the token
-    const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=${contractAddress}&address=${walletAddress}&tag=latest&apikey=${apiKey}`;
+    const apiKey = "FUMHTQE96FPWIW79ZJFCIXFX5BPCGNQC7T"; // Replace with your BscScan API key
+    const contractAddress = "0x42F86030ec3dD31d75a8C1B806dFa8400d40A282"; // The contract address for the token
+    const url = `https://api.etherscan.io/api?module=account&action=tokenbalance&contractaddress=${contractAddress}&address=${walletAddress}&tag=latest&apikey=${apiKey}`;
 
     try {
         const response = await axios.get(url);
