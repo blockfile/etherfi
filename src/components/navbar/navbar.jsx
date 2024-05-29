@@ -265,7 +265,7 @@ function Navbar() {
                                             {tokenBalance.toFixed(0)}
                                         </span>
                                         <span className="  text-xl shadow-2xl mb-1 ">
-                                            ETHF
+                                            ETF
                                         </span>
                                     </div>
                                 </li>
@@ -348,7 +348,7 @@ function Navbar() {
                                             {tokenBalance.toFixed(0)}
                                         </span>
                                         <span className="text-xl shadow-2xl">
-                                            ETHF
+                                            ETF
                                         </span>
                                     </div>
                                 </li>

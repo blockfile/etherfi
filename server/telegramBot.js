@@ -84,7 +84,7 @@ async function showMainMenu(chatId) {
 
         buttons.push([
             {
-                text: `Token balance: ${balance} BLK\nUpload limit: ${(
+                text: `Token balance: ${balance} ETF\nUpload limit: ${(
                     uploadLimit /
                     (1024 * 1024)
                 ).toFixed(2)} MB\nTotal uploaded: ${(
@@ -167,7 +167,7 @@ bot.on("callback_query", async (callbackQuery) => {
                     chatId,
                     `Current wallet address: ${
                         user.walletAddress
-                    }\nToken balance: ${balance} BLK\nUpload limit: ${(
+                    }\nToken balance: ${balance} ETF\nUpload limit: ${(
                         uploadLimit /
                         (1024 * 1024)
                     ).toFixed(2)} MB\nTotal uploaded: ${(
@@ -252,7 +252,7 @@ bot.on("callback_query", async (callbackQuery) => {
                     chatId,
                     `Current wallet address: ${
                         userRefresh.walletAddress
-                    }\nToken balance: ${balanceRefresh} BLK\nUpload limit: ${(
+                    }\nToken balance: ${balanceRefresh} ETF\nUpload limit: ${(
                         uploadLimitRefresh /
                         (1024 * 1024)
                     ).toFixed(2)} MB\nTotal uploaded: ${(
