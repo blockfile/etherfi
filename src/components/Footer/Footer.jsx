@@ -7,21 +7,21 @@ function Footer() {
         <div className="flex flex-col justify-center items-center   text-white text-center font-anta  pb-2">
             <div className=" absolute bottom-10 left-0 right-0 flex justify-center items-center space-x-7  ">
                 <a
-                    href="https://t.me/blockfileofficial"
+                    href="https://t.me/etherfiles"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-2xl">
                     <FaTelegram />
                 </a>
                 <a
-                    href="https://twitter.com/blockFofficial"
+                    href=""
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-2xl">
                     <FaTwitter />
                 </a>
                 <a
-                    href="https://blockfile.xyz/"
+                    href="https://etherfile-ai.com/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-2xl">
